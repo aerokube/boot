@@ -448,7 +448,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#getting-started">1. Getting Started</a></li>
+<li><a href="#getting-started">1. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="#permissions">1.1. Required Permissions</a>
+<ul class="sectlevel3">
+<li><a href="#permissions-single-namespace">1.1.1. Single Namespace Mode</a></li>
+<li><a href="#permissions-multiple-namespaces">1.1.2. Multiple Namespaces Mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#main-features">2. Main Features</a></li>
 <li><a href="#configuration">3. Configuration</a></li>
 <li><a href="#_license_agreement">4. License Agreement</a></li>
@@ -470,7 +479,110 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="getting-started"><a class="anchor" href="#getting-started"></a>1. Getting Started</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="permissions"><a class="anchor" href="#permissions"></a>1.1. Required Permissions</h3>
+<div class="paragraph">
+<p>Boot requires a limited set of permissions and should work with default Kubernetes settings. By default, Boot runs virtual machines in the same <code>boot</code> namespace where it runs (<strong>single namespace mode</strong>). In addition to that Boot supports multiple Kubernetes <a href="https://kubernetes.io/docs/tasks/administer-cluster/namespaces-walkthrough/">namespaces</a>. This allows you to have one Boot instance running in <code>boot</code> namespace and an arbitrary number of namespaces for running virtual machines of different users (<strong>multiple namespaces mode</strong>). Multiple namespaces allow you to easily control the maximum number of virtual machines allowed to run by every team.</p>
+</div>
+<div class="sect3">
+<h4 id="permissions-single-namespace"><a class="anchor" href="#permissions-single-namespace"></a>1.1.1. Single Namespace Mode</h4>
+<div class="paragraph">
+<p>The following table summarizes what needs to be accessible for Boot in single namespace mode:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Required Boot Permissions In Single Namespace Mode</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Permission</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Purpose</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to manipulate pods backing virtual machines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">config maps</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to pass various files like SSH keys and certificates to virtual machines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">deployments</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/">replica sets</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used in license functionality</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store Boot configuration and virtual machines related information. Boot licenses (<code>licenses.boot.aerokube.com</code>) are cluster-wide, so a <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole">ClusterRole</a> is needed for this resource.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="permissions-multiple-namespaces"><a class="anchor" href="#permissions-multiple-namespaces"></a>1.1.2. Multiple Namespaces Mode</h4>
+<div class="paragraph">
+<p>When running browsers in multiple namespaces required permissions differ. The following table shows Boot permissions in the namespace where it is running:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Required Permissions for the Namespace where Boot runs</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Permission</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Purpose</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> information about <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">namespaces</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Needed to control how many virtual machines are running in every user namespace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to analyze pods in Boot namespace</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">deployments</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/">replica sets</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used in license functionality</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store Boot configuration. Boot licenses (<code>licenses.boot.aerokube.com</code>) are cluster-wide, so a <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole">ClusterRole</a> is needed for this resource.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For every user namespace Boot needs the following permissions:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Required Boot Permissions For User Namespace</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Permission</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Purpose</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to manipulate pods with browsers</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">config maps</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to pass users and groups to browser pods</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store virtual machines related information.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -925,7 +1037,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p>For simplicity, we calculated monthly prices for some frequent cases:</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. Boot License Pricing</caption>
+<caption class="title">Table 4. Boot License Pricing</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1016,7 +1128,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-07-29 14:48:27 UTC
+Last updated 2023-07-29 15:17:57 UTC
 </div>
 </div>
 </body>
