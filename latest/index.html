@@ -573,7 +573,22 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#license-ops">3.1.6. Updating License Key From An External Secret</a></li>
 </ul>
 </li>
-<li><a href="#multiple-namespaces">3.2. Multiple Namespaces Mode</a></li>
+<li><a href="#private-container-registry">3.2. Using Private Container Registry</a></li>
+<li><a href="#multiple-namespaces">3.3. Multiple Namespaces Mode</a></li>
+<li><a href="#monitoring">3.4. Monitoring</a>
+<ul class="sectlevel3">
+<li><a href="#monitoring-setup">3.4.1. Setup</a></li>
+<li><a href="#monitoring-built-in-metrics">3.4.2. Built-in Boot metrics</a></li>
+<li><a href="#filter-by-labels">3.4.3. Filtering Virtual Machine Pods by Labels</a></li>
+</ul>
+</li>
+<li><a href="#log-files">3.5. Log Files</a></li>
+<li><a href="#_cli_flags">3.6. CLI Flags</a>
+<ul class="sectlevel3">
+<li><a href="#cli-flags-boot">3.6.1. Boot Container Flags</a></li>
+<li><a href="#cli-flags-reloader">3.6.2. Reloader Container Flags</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#license-agreement">4. License Agreement</a></li>
@@ -810,11 +825,11 @@ $ minikube start --cpus=4 --memory=8G --disk-size=20G --driver=hyperv</code></pr
 <p>Install Boot with Helm as shown <a href="#install-helm">above</a>.</p>
 </li>
 <li>
-<p>Configure access to Moon:</p>
+<p>Configure access to Boot:</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p><strong>Option 1.</strong> Use <code>minikube ip</code> to patch Moon service.</p>
+<p><strong>Option 1.</strong> Use <code>minikube ip</code> to patch Boot service.</p>
 <div class="olist lowerroman">
 <ol class="lowerroman" type="i">
 <li>
@@ -1192,7 +1207,7 @@ boot   Default    1      Never     Ok       boot</code></pre>
 </ul>
 </div>
 <div class="paragraph">
-<p>You may have multiple custom Kubernetes resources named <code>license</code>. In that case in order to work with Moon licenses - simply use fully qualified resource name:</p>
+<p>You may have multiple custom Kubernetes resources named <code>license</code>. In that case in order to work with Boot licenses - simply use fully qualified resource name:</p>
 </div>
 <div class="listingblock">
 <div class="title">Listing licenses (longer and fully qualified resource name)</div>
@@ -1311,7 +1326,7 @@ spec:
 <p>If you try to create two license keys with the same <code>data</code> field value, then one of them will be considered as a duplicate and automatically deleted.</p>
 </li>
 <li>
-<p>If you have two different license keys with the same <code>namespace</code> field, then Moon will always choose the most recently created one.</p>
+<p>If you have two different license keys with the same <code>namespace</code> field, then Boot will always choose the most recently created one.</p>
 </li>
 </ul>
 </div>
@@ -1347,13 +1362,13 @@ license-key-ns2   Acme Inc.    20      Never     Ok       ns2</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>When you delete the last license key with <code>namespace</code> field set to some Boot namespace, Moon will automatically fall back to the free license key with 1 CPU included.</p>
+<p>When you delete the last license key with <code>namespace</code> field set to some Boot namespace, Boot will automatically fall back to the free license key with 1 CPU included.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.1.5. License Key Expiration</h4>
 <div class="paragraph">
-<p>There are several ways to always have active Moon license keys:</p>
+<p>There are several ways to always have active Boot license keys:</p>
 </div>
 <div class="sect4">
 <h5 id="license-expiration-kubectl"><a class="anchor" href="#license-expiration-kubectl"></a>Option 1: Check Expiring License Keys with kubectl</h5>
@@ -1461,8 +1476,241 @@ boot_license_expire 1.6444512e+09</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.2. Multiple Namespaces Mode</h3>
+<h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.2. Using Private Container Registry</h3>
+<div class="paragraph">
+<p>By default, Boot images (<code>aerokube/boot</code>, <code>aerokube/jumphost</code> and so on) are downloaded from public container images registry. If in your environment due to security restrictions container images can only be downloaded from private registry (e.g. <code>my-registry.example.com</code>) you need to configure Boot to work with this registry. To do this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Configure Kubernetes authentication to your private registry:</p>
+<div class="literalblock">
+<div class="content">
+<pre>$ kubectl create secret docker-registry my-registry.example.com --docker-server=my-registry.example.com --docker-username=some-user --docker-password=registry-password --docker-email=some-user@example.com -n boot
+$ kubectl patch serviceaccount boot -p '{"imagePullSecrets": [{"name": "my-registry.example.com"}]}' -n boot # Use correct service account name here</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In case of Openshift the following commands will work:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ oc create secret docker-registry my-registry.example.com --docker-server=my-registry.example.com --docker-username=some-user --docker-password=registry-password --docker-email=some-user@example.com -n boot
+$ oc secrets link boot my-registry.example.com --for=pull -n boot</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Copy all desired virtual machine images to your registry:</p>
+<div class="literalblock">
+<div class="content">
+<pre>quay.io/boot/ubuntu:22.04 =&gt; my-registry.example.com/boot/ubuntu:22.04</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Update <a href="#private-container-registry">configuration</a> to use new virtual machine images repository:</p>
+<div class="listingblock">
+<div class="title">Configuration with Private Container Repository</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="comment"># TODO: add config!</span></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Copy desired version of the Boot images to your registry:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">aerokube/boot:1.0.0 =&gt; my-registry.example.com/aerokube/boot:1.0.0
+aerokube/jumphost:1.0.0 =&gt; my-registry.example.com/aerokube/jumphost:1.0.0
+aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Use new Boot images from the previous step in Helm chart to start Boot and Boot UI.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.3. Multiple Namespaces Mode</h3>
 
+</div>
+<div class="sect2">
+<h3 id="monitoring"><a class="anchor" href="#monitoring"></a>3.4. Monitoring</h3>
+<div class="paragraph">
+<p>You can easily visualize browsers consumption and other Boot metrics with <a href="https://prometheus.io/">Prometheus</a> and <a href="https://grafana.com/">Grafana</a>. One of the simplest ways of deploying Prometheus in Kubernetes is using <a href="https://github.com/coreos/prometheus-operator">Prometheus Operator</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="monitoring-setup"><a class="anchor" href="#monitoring-setup"></a>3.4.1. Setup</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Boot should be already running (e.g. in <code>boot</code> namespace).</p>
+</li>
+<li>
+<p>Deploy Prometheus and Grafana using Prometheus Operator (e.g. to <code>monitoring</code> namespace).</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>An example installation command using Helm 3 is:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+$ helm repo update
+$ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Having a configured Prometheus instance you have two ways of getting metrics: <strong>using built-in Boot metrics</strong> and <strong>filtering virtual machines by labels</strong>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="monitoring-built-in-metrics"><a class="anchor" href="#monitoring-built-in-metrics"></a>3.4.2. Built-in Boot metrics</h4>
+<div class="paragraph">
+<p>Built-in Boot metrics are exposed on the standard <code>/metrics</code> HTTP API.</p>
+</div>
+<div class="listingblock">
+<div class="title">Getting Prometheus metrics</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -s https://boot.example.com/metrics
+# A lot of metrics come here</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following metrics are available:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Boot Built-in Prometheus Metrics</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Labels</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boot_cpu_limit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of CPUs allowed by installed license key</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boot_vm_running</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total number of currently running virtual machines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boot_license_expire</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boot license key expiration timestamp</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="filter-by-labels"><a class="anchor" href="#filter-by-labels"></a>3.4.3. Filtering Virtual Machine Pods by Labels</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.5. Log Files</h3>
+<div class="paragraph">
+<p>Although Boot should just work out of the box, sometimes you may need the log output. Every Boot component is outputting logs to standard output (<code>stdout</code>), so you can use well-known <code>kubectl</code> commands to see the log. Everything related to starting virtual machines is being output by <code>boot</code> container:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kubectl logs -lapp=boot -c boot -n boot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To follow the logs while running the tests add <code>-f</code> flag:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kubectl logs -f -lapp=boot -c boot -n boot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also take a look at <code>reloader</code> and <code>jumphost</code> logs as follows:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kubectl logs -f -lapp=boot -c reloader -n boot
+$ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you are encountering issues with virtual machines then take a look at respective pod:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ kubectl logs virtual-machine-01 -n boot</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here <code>virtual-machine-01</code> is the name of the virtual machine.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_flags"><a class="anchor" href="#_cli_flags"></a>3.6. CLI Flags</h3>
+<div class="paragraph">
+<p>These command-line flags should be <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#define-a-command-and-arguments-when-you-create-a-pod">specified</a> in Helm chart parameters when starting the cluster.</p>
+</div>
+<div class="sect3">
+<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.6.1. Boot Container Flags</h4>
+<div class="paragraph">
+<p>The following flags are supported:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>-ca-secret-name string
+    secret name with ssh host CA keys (default "boot-vm-ssh-host-ca-keys")
+-sshd-startup-time duration
+    sshd startup time (default 30s)</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.6.2. Reloader Container Flags</h4>
+<div class="paragraph">
+<p>The following flags are supported:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>-listen string
+    listen (default ":2222")
+-lock string
+    proxy port (default "/tmp/.boot-lock")
+-port string
+     (default "2223")</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1906,7 +2154,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 <li>
 <p>For simplicity, we calculated monthly prices for some frequent cases:</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Boot License Pricing</caption>
+<caption class="title">Table 6. Boot License Pricing</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1997,7 +2245,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-07-30 12:45:23 UTC
+Last updated 2023-07-30 13:29:15 UTC
 </div>
 </div>
 </body>
