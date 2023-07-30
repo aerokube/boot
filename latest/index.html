@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-07-29</span>
+<span id="revdate">2023-07-30</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -545,10 +545,17 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#install-openshift">1.1.2. Installing to Openshift</a></li>
 </ul>
 </li>
-<li><a href="#permissions">1.2. Required Permissions</a>
+<li><a href="#architecture">1.2. Architecture</a>
 <ul class="sectlevel3">
-<li><a href="#permissions-single-namespace">1.2.1. Single Namespace Mode</a></li>
-<li><a href="#permissions-multiple-namespaces">1.2.2. Multiple Namespaces Mode</a></li>
+<li><a href="#boot-components">1.2.1. Boot Components</a></li>
+<li><a href="#boot-pod-contents">1.2.2. Boot Pod Contents</a></li>
+<li><a href="#boot-operation-modes">1.2.3. Boot Operation Modes</a></li>
+</ul>
+</li>
+<li><a href="#permissions">1.3. Required Permissions</a>
+<ul class="sectlevel3">
+<li><a href="#permissions-single-namespace">1.3.1. Single Namespace Mode</a></li>
+<li><a href="#permissions-multiple-namespaces">1.3.2. Multiple Namespaces Mode</a></li>
 </ul>
 </li>
 </ul>
@@ -566,6 +573,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#license-ops">3.1.6. Updating License Key From An External Secret</a></li>
 </ul>
 </li>
+<li><a href="#multiple-namespaces">3.2. Multiple Namespaces Mode</a></li>
 </ul>
 </li>
 <li><a href="#license-agreement">4. License Agreement</a></li>
@@ -906,17 +914,96 @@ $ helm repo update</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="permissions"><a class="anchor" href="#permissions"></a>1.2. Required Permissions</h3>
+<h3 id="architecture"><a class="anchor" href="#architecture"></a>1.2. Architecture</h3>
+<div class="sect3">
+<h4 id="boot-components"><a class="anchor" href="#boot-components"></a>1.2.1. Boot Components</h4>
+<div class="paragraph">
+<div class="title">Boot Components</div>
+<p><span class="image"><img src="img/boot-components.png" alt="boot components"></span></p>
+</div>
+<div class="paragraph">
+<p>Boot cluster consists of several components:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>One or more <code>Boot</code> application instances. Their main purpose is to start/stop virtual machines and to control access to created virtual machines via SSH. <code>Boot</code> is usually accessible on some SSH port, e.g. <code>2222</code>.</p>
+</li>
+<li>
+<p>One or more <code>Boot UI</code> application instances (currently under development). <code>Boot UI</code> collects information from Boot and visualizes it. It is usually available on HTTP port <code>8080</code>.</p>
+</li>
+<li>
+<p>Running virtual machine pods and respective virtual machine custom resources.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="boot-pod-contents"><a class="anchor" href="#boot-pod-contents"></a>1.2.2. Boot Pod Contents</h4>
+<div class="paragraph">
+<p>Every Boot pod contains several containers with different purpose.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Boot Pod Containers</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boot</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Starts and stops virtual machines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jump-proxy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Controls SSH access to running virtual machines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">reloader</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Makes sure that SSH connections to virtual machines are only interrupted after expected period of time when you update Boot components</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="boot-operation-modes"><a class="anchor" href="#boot-operation-modes"></a>1.2.3. Boot Operation Modes</h4>
+<div class="paragraph">
+<p>Boot has two different operation modes: <strong>single namespace mode</strong> and <strong>multiple namespaces mode</strong>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Single Namespace Mode</div>
+<p><span class="image"><img src="img/single-namespace-mode.png" alt="single-namespace-mode"></span></p>
+</div>
+<div class="paragraph">
+<p>In single namespace mode Boot itself and all launched virtual machines are running in the one Kubernetes namespace. This is suitable if only one team is using Boot or you don&#8217;t need to limit virtual machines consumption for different Boot users. By default, Boot is launched in this mode.</p>
+</div>
+<div class="paragraph">
+<div class="title">Multiple Namespaces Mode</div>
+<p><span class="image"><img src="img/multiple-namespaces-mode.png" alt="multiple-namespaces-mode"></span></p>
+</div>
+<div class="paragraph">
+<p>In multiple namespaces mode Boot is running in one namespace and virtual machines are launched in separate namespaces. The total number of such namespaces is unlimited. This mode is mainly needed when you want to control computing resources, virtual machine operating system versions or network access rules (<a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">network policies</a>) available for every team. How to enable this mode is described <a href="#multiple-namespaces">here</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="permissions"><a class="anchor" href="#permissions"></a>1.3. Required Permissions</h3>
 <div class="paragraph">
 <p>Boot requires a limited set of permissions and should work with default Kubernetes settings. By default, Boot runs virtual machines in the same <code>boot</code> namespace where it runs (<strong>single namespace mode</strong>). In addition to that Boot supports multiple Kubernetes <a href="https://kubernetes.io/docs/tasks/administer-cluster/namespaces-walkthrough/">namespaces</a>. This allows you to have one Boot instance running in <code>boot</code> namespace and an arbitrary number of namespaces for running virtual machines of different users (<strong>multiple namespaces mode</strong>). Multiple namespaces allow you to easily control the maximum number of virtual machines allowed to run by every team.</p>
 </div>
 <div class="sect3">
-<h4 id="permissions-single-namespace"><a class="anchor" href="#permissions-single-namespace"></a>1.2.1. Single Namespace Mode</h4>
+<h4 id="permissions-single-namespace"><a class="anchor" href="#permissions-single-namespace"></a>1.3.1. Single Namespace Mode</h4>
 <div class="paragraph">
 <p>The following table summarizes what needs to be accessible for Boot in single namespace mode:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. Required Boot Permissions In Single Namespace Mode</caption>
+<caption class="title">Table 2. Required Boot Permissions In Single Namespace Mode</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -946,12 +1033,12 @@ $ helm repo update</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="permissions-multiple-namespaces"><a class="anchor" href="#permissions-multiple-namespaces"></a>1.2.2. Multiple Namespaces Mode</h4>
+<h4 id="permissions-multiple-namespaces"><a class="anchor" href="#permissions-multiple-namespaces"></a>1.3.2. Multiple Namespaces Mode</h4>
 <div class="paragraph">
 <p>When running browsers in multiple namespaces required permissions differ. The following table shows Boot permissions in the namespace where it is running:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Required Permissions for the Namespace where Boot runs</caption>
+<caption class="title">Table 3. Required Permissions for the Namespace where Boot runs</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -983,7 +1070,7 @@ $ helm repo update</code></pre>
 <p>For every user namespace Boot needs the following permissions:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Required Boot Permissions For User Namespace</caption>
+<caption class="title">Table 4. Required Boot Permissions For User Namespace</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1372,6 +1459,10 @@ boot_license_expire 1.6444512e+09</code></pre>
 </ol>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.2. Multiple Namespaces Mode</h3>
+
 </div>
 </div>
 </div>
@@ -1815,7 +1906,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 <li>
 <p>For simplicity, we calculated monthly prices for some frequent cases:</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Boot License Pricing</caption>
+<caption class="title">Table 5. Boot License Pricing</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1906,7 +1997,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-07-29 16:11:06 UTC
+Last updated 2023-07-30 12:45:23 UTC
 </div>
 </div>
 </body>
