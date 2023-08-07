@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-01</span>
+<span id="revdate">2023-08-07</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -681,8 +681,8 @@ Helm chart is the recommended Boot installation way. Steps below require Helm 3 
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">boot:
   jumphost:
-    authorizedKeys: |
-      ssh-rsa AAAAB3N... some-comment # Insert public key contents here</code></pre>
+    authorizedKeys:
+      - ssh-rsa AAAAB3N... some-comment # Insert at least one public key contents here</code></pre>
 </div>
 </div>
 </li>
@@ -2245,7 +2245,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-01 10:57:10 UTC
+Last updated 2023-08-07 09:17:57 UTC
 </div>
 </div>
 </body>
