@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-09</span>
+<span id="revdate">2023-08-11</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -560,33 +560,47 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </li>
 </ul>
 </li>
-<li><a href="#main-features">2. Main Features</a></li>
+<li><a href="#main-features">2. Main Features</a>
+<ul class="sectlevel2">
+<li><a href="#virtual-machines">2.1. Virtual Machines</a></li>
+</ul>
+</li>
 <li><a href="#configuration">3. Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#license">3.1. License Key</a>
+<li><a href="#operating-systems">3.1. Operating Systems</a>
 <ul class="sectlevel3">
-<li><a href="#license-list">3.1.1. Listing License Keys</a></li>
-<li><a href="#license-update">3.1.2. Updating a License Key</a></li>
-<li><a href="#license-multiple">3.1.3. Multiple License Keys</a></li>
-<li><a href="#license-delete">3.1.4. Deleting a License Key</a></li>
-<li><a href="#license-expiration">3.1.5. License Key Expiration</a></li>
-<li><a href="#license-ops">3.1.6. Updating License Key From An External Secret</a></li>
+<li><a href="#operating-systems-repo-version">3.1.1. Repository and Versions</a></li>
+<li><a href="#operating-systems-computing-resources">3.1.2. Computing Resources</a></li>
+<li><a href="#operating-systems-node-selector">3.1.3. Node Selector</a></li>
+<li><a href="#operating-systems-affinity">3.1.4. Affinity</a></li>
+<li><a href="#operating-systems-networking">3.1.5. Networking</a></li>
+<li><a href="#operating-systems-tolerations">3.1.6. Tolerations</a></li>
 </ul>
 </li>
-<li><a href="#private-container-registry">3.2. Using Private Container Registry</a></li>
-<li><a href="#multiple-namespaces">3.3. Multiple Namespaces Mode</a></li>
-<li><a href="#monitoring">3.4. Monitoring</a>
+<li><a href="#license">3.2. License Key</a>
 <ul class="sectlevel3">
-<li><a href="#monitoring-setup">3.4.1. Setup</a></li>
-<li><a href="#monitoring-built-in-metrics">3.4.2. Built-in Boot metrics</a></li>
-<li><a href="#filter-by-labels">3.4.3. Filtering Virtual Machine Pods by Labels</a></li>
+<li><a href="#license-list">3.2.1. Listing License Keys</a></li>
+<li><a href="#license-update">3.2.2. Updating a License Key</a></li>
+<li><a href="#license-multiple">3.2.3. Multiple License Keys</a></li>
+<li><a href="#license-delete">3.2.4. Deleting a License Key</a></li>
+<li><a href="#license-expiration">3.2.5. License Key Expiration</a></li>
+<li><a href="#license-ops">3.2.6. Updating License Key From An External Secret</a></li>
 </ul>
 </li>
-<li><a href="#log-files">3.5. Log Files</a></li>
-<li><a href="#_cli_flags">3.6. CLI Flags</a>
+<li><a href="#private-container-registry">3.3. Using Private Container Registry</a></li>
+<li><a href="#multiple-namespaces">3.4. Multiple Namespaces Mode</a></li>
+<li><a href="#monitoring">3.5. Monitoring</a>
 <ul class="sectlevel3">
-<li><a href="#cli-flags-boot">3.6.1. Boot Container Flags</a></li>
-<li><a href="#cli-flags-reloader">3.6.2. Reloader Container Flags</a></li>
+<li><a href="#monitoring-setup">3.5.1. Setup</a></li>
+<li><a href="#monitoring-built-in-metrics">3.5.2. Built-in Boot metrics</a></li>
+<li><a href="#filter-by-labels">3.5.3. Filtering Virtual Machine Pods by Labels</a></li>
+</ul>
+</li>
+<li><a href="#log-files">3.6. Log Files</a></li>
+<li><a href="#_cli_flags">3.7. CLI Flags</a>
+<ul class="sectlevel3">
+<li><a href="#cli-flags-boot">3.7.1. Boot Container Flags</a></li>
+<li><a href="#cli-flags-reloader">3.7.2. Reloader Container Flags</a></li>
 </ul>
 </li>
 </ul>
@@ -1116,14 +1130,444 @@ $ helm repo update</code></pre>
 <div class="sect1">
 <h2 id="main-features"><a class="anchor" href="#main-features"></a>2. Main Features</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="virtual-machines"><a class="anchor" href="#virtual-machines"></a>2.1. Virtual Machines</h3>
 
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="configuration"><a class="anchor" href="#configuration"></a>3. Configuration</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="license"><a class="anchor" href="#license"></a>3.1. License Key</h3>
+<h3 id="operating-systems"><a class="anchor" href="#operating-systems"></a>3.1. Operating Systems</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Boot virtual machines are always running in privileged mode, so we intentionally did not add some existing Kubernetes features like <a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/">security context</a>.</p>
+</li>
+<li>
+<p>Default way of accessing Boot virtual machines is using [SSH] connection. An interactive SSH session never relies on server environment variables, so we did not add passing <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/">environment variables</a> from operating system configuration. This simply makes no sense.</p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>An operating system is the main Boot configuration unit. Every operating system object stores parameters used when you launch a <a href="#virtual-machines">virtual machine</a>: container images, available computing resources, particular DNS configuration and so on. To list available operating systems:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing operating systems</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get os -n boot
+NAME     REPOSITORY            VERSION(S)   CPU    MEM   AGE
+alpine   quay.io/boot/alpine   3.18         500m   1Gi   50m
+ubi      quay.io/boot/ubi      9.2          500m   1Gi   50m
+ubuntu   quay.io/boot/ubuntu   22.04        500m   1Gi   50m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A typical operating system definition looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">Getting operating system definition in YAML format</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get os ubuntu -n boot -o yaml
+apiVersion: boot.aerokube.com/v1
+kind: OperatingSystem
+metadata:
+  name: ubuntu
+  namespace: boot
+  # Other metadata fields...
+spec:
+  repository: quay.io/boot/ubuntu  <i class="conum" data-value="1"></i><b>(1)</b>
+  resources:                       <i class="conum" data-value="2"></i><b>(2)</b>
+    limits:
+      cpu: &quot;0.5&quot;
+      memory: 1Gi
+    requests:
+      cpu: &quot;0.5&quot;
+      memory: 1Gi
+  versions:                        <i class="conum" data-value="3"></i><b>(3)</b>
+  - &quot;22.04&quot;
+status:
+  # Fields used for listing</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Repository with images for this operating system</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Available <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">computing resources</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Available operating system versions</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>While such short configuration will work - more advanced settings exist:</p>
+</div>
+<div class="listingblock">
+<div class="title">More fields in operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get os ubuntu -n boot -o yaml
+apiVersion: boot.aerokube.com/v1
+kind: OperatingSystem
+metadata:
+  name: ubuntu
+  namespace: boot
+  # Other metadata fields...
+spec:
+  affinity:                            <i class="conum" data-value="1"></i><b>(1)</b>
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-label-1
+            operator: In
+            values:
+            - value-1
+            - value-2
+  dnsPolicy: None                      <i class="conum" data-value="2"></i><b>(2)</b>
+  dnsConfig:                           <i class="conum" data-value="3"></i><b>(3)</b>
+    nameservers:
+      - 192.0.2.1
+    searches:
+      - ns1.svc.cluster-domain.example
+      - my.dns.search.suffix
+    options:
+      # See Kubernetes documentation
+  nodeSelector:                        <i class="conum" data-value="4"></i><b>(4)</b>
+      node-label-1: &quot;label1-value&quot;
+      node-label-2: &quot;label2-value&quot;
+  repository: quay.io/boot/ubuntu      <i class="conum" data-value="5"></i><b>(5)</b>
+  resources:                           <i class="conum" data-value="6"></i><b>(6)</b>
+    limits:
+      cpu: &quot;0.5&quot;
+      memory: 1Gi
+    requests:
+      cpu: &quot;0.5&quot;
+      memory: 1Gi
+  tolerations:                         <i class="conum" data-value="7"></i><b>(7)</b>
+  - key: &quot;key1&quot;
+    operator: &quot;Equal&quot;
+    value: &quot;value1&quot;
+    effect: &quot;NoSchedule&quot;
+  versions:                            <i class="conum" data-value="8"></i><b>(8)</b>
+  - &quot;22.04&quot;
+status:
+  # Fields used for listing</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Applied <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">affinity configuration</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Applied <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy">DNS policy</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Applied <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config">DNS configuration</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Applied Kubernetes <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector">node selector</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Repository with images for this operating system - this is the only required field</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Available <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">computing resources</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Applied Kubernetes <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">tolerations</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Available operating system versions - limits allowed image tags that can be used for launching virtual machines</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The next sections explain these settings in more detail.</p>
+</div>
+<div class="paragraph">
+<p>To edit an operating system object:</p>
+</div>
+<div class="listingblock">
+<div class="title">Editing an operating system</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl edit os ubuntu -n boot # Do modifications in text editor, save and exit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another possible option to edit an operating system definition that we recommend in the majority of cases is updating the same object with Helm. To do this - edit the following <code>values.yaml</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating operating systems with Helm</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>: <span class="comment"># Helm chart fields for every operating system object are exactly the same as described above</span>
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">versions</span>:
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">22.04</span><span class="delimiter">&quot;</span></span>
+    <span class="key">nodeSelector</span>: <span class="comment"># Let's add node selector</span>
+      <span class="key">kubernetes.io/arch</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">amd64</span><span class="delimiter">&quot;</span></span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now simply reapply Helm chart with modifications in <code>values.yaml</code> file, and you are all set.</p>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-repo-version"><a class="anchor" href="#operating-systems-repo-version"></a>3.1.1. Repository and Versions</h4>
+<div class="paragraph">
+<p>The most important settings in operating system definition are the name of image repository and available versions. For example, let&#8217;s assume that you have the following operating system definition:</p>
+</div>
+<div class="listingblock">
+<div class="title">Repository and versions in operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get os ubuntu -n boot -o yaml
+apiVersion: boot.aerokube.com/v1
+kind: OperatingSystem
+metadata:
+  name: ubuntu
+  namespace: boot
+  # Other metadata fields...
+spec:
+  repository: quay.io/boot/ubuntu
+  versions:
+  - &quot;20.04&quot;
+  - &quot;22.04&quot;
+status:
+  # Fields used for listing</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you request to launch a virtual machine like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">Requesting to launch an Ubuntu 20.04 virtual machine</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-ubuntu-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">version</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">20.04</span><span class="delimiter">&quot;</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Boot will then create a pod using <code>quay.io/boot/ubuntu:20.04</code> container image. Similarly, when you change <code>version</code> to <code>22.04</code>, respective container image will be <code>quay.io/boot/ubuntu:20.04</code>. Versions list is mainly needed to show recommended operating system versions to user. Nothing will prevent user from creating a virtual machine with version <code>18.04</code> is respective image (<code>quay.io/boot/ubuntu:18.04</code>) exists.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-computing-resources"><a class="anchor" href="#operating-systems-computing-resources"></a>3.1.2. Computing Resources</h4>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Boot is using exactly the same computing resources configuration YAML format as <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes does</a>.</p>
+</li>
+<li>
+<p>We recommend to set memory requests and limits to the same value because otherwise sooner or later processes inside a virtual machines can be killed because of lack of memory (out of memory, OOM).</p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To limit computing resources available to every virtual machine, you need to add resources section to respective operating system definition.</p>
+</div>
+<div class="listingblock">
+<div class="title">Assigning computing resources to operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>:
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">resources</span>: <span class="comment"># Computing resources available to every virtual machine</span>
+        <span class="key">limits</span>:
+          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">0.5</span><span class="delimiter">&quot;</span></span>
+          <span class="key">memory</span>: <span class="string"><span class="content">1Gi</span></span>
+        <span class="key">requests</span>:
+          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1.0</span><span class="delimiter">&quot;</span></span>
+          <span class="key">memory</span>: <span class="string"><span class="content">1Gi</span></span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-node-selector"><a class="anchor" href="#operating-systems-node-selector"></a>3.1.3. Node Selector</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Boot is using exactly the same node selector YAML format as <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector">Kubernetes does</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Sometimes you may need to run virtual machines on particular Kubernetes nodes (i.e. hosts) only. Kubernetes allows to do this by specifying so-called <a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/">node selectors</a>. If you need to add the same node selector to an operating system definition:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding node selector to operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>:
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">nodeSelector</span>: <span class="comment"># Node selector definition</span>
+        <span class="key">node-label-1</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">label1-value</span><span class="delimiter">&quot;</span></span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-affinity"><a class="anchor" href="#operating-systems-affinity"></a>3.1.4. Affinity</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Boot is using exactly the same affinity configuration YAML format as <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">Kubernetes does</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In addition to node selectors, you can also use all available node and pod affinity features available in Kubernetes. This allows you to have even more advanced pod scheduling settings like matching Kubernetes nodes against complex logical expressions, preventing some labeled pods to be running on the same node with another labeled pods and so on.</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding affinity specification to operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>:
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">affinity</span>: <span class="comment"># Affinity settings have exactly the same YAML fields as Kubernetes pod affinity settings</span>
+        <span class="key">nodeAffinity</span>:
+          <span class="key">requiredDuringSchedulingIgnoredDuringExecution</span>:
+            <span class="key">nodeSelectorTerms</span>:
+            - <span class="string"><span class="content">matchExpressions:</span></span>
+              - <span class="string"><span class="content">key: node-label-1</span></span>
+                <span class="key">operator</span>: <span class="string"><span class="content">In</span></span>
+                <span class="key">values</span>:
+                - <span class="string"><span class="content">value-1</span></span>
+                - <span class="string"><span class="content">value-2</span></span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-networking"><a class="anchor" href="#operating-systems-networking"></a>3.1.5. Networking</h4>
+<div class="paragraph">
+<p>Some scenarios require flexible networking configuration. For example, you may need to override used DNS server. This can be easily done as follows:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding dns settings to operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>:
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">dnsPolicy</span>: <span class="string"><span class="content">None</span></span> <span class="comment"># DNS settings have exactly the same YAML fields (dnsPolicy and dnsConfig) as Kubernetes pod dns settings</span>
+      <span class="key">dnsConfig</span>:
+        <span class="key">nameservers</span>:
+          - <span class="string"><span class="content">192.0.2.1</span></span>
+        <span class="key">searches</span>:
+          - <span class="string"><span class="content">ns1.svc.cluster-domain.example</span></span>
+          - <span class="string"><span class="content">my.dns.search.suffix</span></span>
+        <span class="key">options</span>:
+          <span class="comment"># See Kubernetes documentation</span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="operating-systems-tolerations"><a class="anchor" href="#operating-systems-tolerations"></a>3.1.6. Tolerations</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Boot is using exactly the same tolerations configuration YAML format as <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">Kubernetes does</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In addition to node selector and affinity, Kubernetes has a concept of <a href="https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/">node taints</a>. Taints allow nodes to repel some pods from being scheduled on them. If you wish to run browser pods on tainted nodes - you have to add <strong>tolerations</strong>, that is to say a number of conditions to match against tainted nodes.</p>
+</div>
+<div class="paragraph">
+<p>To add the tolerations to operating system definition:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding tolerations to operating system definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="comment"># More fields go here</span>
+  <span class="key">os</span>:
+    <span class="key">ubuntu</span>:
+      <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
+      <span class="key">tolerations</span>: <span class="comment"># Tolerations settings have exactly the same YAML keys as Kubernetes pod tolerations settings</span>
+      - <span class="string"><span class="content">key: &quot;key1&quot;</span></span>
+        <span class="key">operator</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Equal</span><span class="delimiter">&quot;</span></span>
+        <span class="key">value</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value1</span><span class="delimiter">&quot;</span></span>
+        <span class="key">effect</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">NoSchedule</span><span class="delimiter">&quot;</span></span>
+  <span class="comment"># Other fields go here</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="license"><a class="anchor" href="#license"></a>3.2. License Key</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1155,7 +1599,7 @@ bEtvclhlSjNucmR0Zng3cXlibUNJSFhmTGVnMTlhaHVSOGhpVTNRVU9nQ2xTY3crN3loL3I5L0dIY054
 <p>In Boot license keys (or just <code>licenses</code>) are stored in <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom Kubernetes resource</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="license-list"><a class="anchor" href="#license-list"></a>3.1.1. Listing License Keys</h4>
+<h4 id="license-list"><a class="anchor" href="#license-list"></a>3.2.1. Listing License Keys</h4>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1258,7 +1702,7 @@ status:
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-update"><a class="anchor" href="#license-update"></a>3.1.2. Updating a License Key</h4>
+<h4 id="license-update"><a class="anchor" href="#license-update"></a>3.2.2. Updating a License Key</h4>
 <div class="paragraph">
 <p>To update an existing license key - simply update <code>data</code> field in respective license object:</p>
 </div>
@@ -1273,7 +1717,7 @@ status:
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-multiple"><a class="anchor" href="#license-multiple"></a>3.1.3. Multiple License Keys</h4>
+<h4 id="license-multiple"><a class="anchor" href="#license-multiple"></a>3.2.3. Multiple License Keys</h4>
 <div class="paragraph">
 <p>Boot allows to share the same license key among several Kubernetes namespaces and in the majority of cases a single license key should be enough. However, in some cases you may want to use a separate Boot instance and a separate license key for some teams. To achieve this:</p>
 </div>
@@ -1351,7 +1795,7 @@ license-key-ns2   Acme Inc.    20      Never     Ok       ns2</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-delete"><a class="anchor" href="#license-delete"></a>3.1.4. Deleting a License Key</h4>
+<h4 id="license-delete"><a class="anchor" href="#license-delete"></a>3.2.4. Deleting a License Key</h4>
 <div class="paragraph">
 <p>To delete an existing license key - simply delete respective license object:</p>
 </div>
@@ -1366,7 +1810,7 @@ license-key-ns2   Acme Inc.    20      Never     Ok       ns2</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.1.5. License Key Expiration</h4>
+<h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.2.5. License Key Expiration</h4>
 <div class="paragraph">
 <p>There are several ways to always have active Boot license keys:</p>
 </div>
@@ -1432,7 +1876,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-ops"><a class="anchor" href="#license-ops"></a>3.1.6. Updating License Key From An External Secret</h4>
+<h4 id="license-ops"><a class="anchor" href="#license-ops"></a>3.2.6. Updating License Key From An External Secret</h4>
 <div class="paragraph">
 <p>In some cases you still may want to store license key in a <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes secret</a> and allow Boot to automatically read license key from this secret. To achieve this we provide a dedicated component called <code>license-ops</code>. This component is a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes job</a> that reads license key contents from configured secret and automatically updates custom Kubernetes resource being used by Boot. To enabled <code>license-ops</code> you need to install one more Helm chart:</p>
 </div>
@@ -1476,7 +1920,7 @@ boot_license_expire 1.6444512e+09</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.2. Using Private Container Registry</h3>
+<h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.3. Using Private Container Registry</h3>
 <div class="paragraph">
 <p>By default, Boot images (<code>aerokube/boot</code>, <code>aerokube/jumphost</code> and so on) are downloaded from public container images registry. If in your environment due to security restrictions container images can only be downloaded from private registry (e.g. <code>my-registry.example.com</code>) you need to configure Boot to work with this registry. To do this:</p>
 </div>
@@ -1534,16 +1978,16 @@ aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</c
 </div>
 </div>
 <div class="sect2">
-<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.3. Multiple Namespaces Mode</h3>
+<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.4. Multiple Namespaces Mode</h3>
 
 </div>
 <div class="sect2">
-<h3 id="monitoring"><a class="anchor" href="#monitoring"></a>3.4. Monitoring</h3>
+<h3 id="monitoring"><a class="anchor" href="#monitoring"></a>3.5. Monitoring</h3>
 <div class="paragraph">
 <p>You can easily visualize browsers consumption and other Boot metrics with <a href="https://prometheus.io/">Prometheus</a> and <a href="https://grafana.com/">Grafana</a>. One of the simplest ways of deploying Prometheus in Kubernetes is using <a href="https://github.com/coreos/prometheus-operator">Prometheus Operator</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="monitoring-setup"><a class="anchor" href="#monitoring-setup"></a>3.4.1. Setup</h4>
+<h4 id="monitoring-setup"><a class="anchor" href="#monitoring-setup"></a>3.5.1. Setup</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1580,7 +2024,7 @@ $ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack 
 </div>
 </div>
 <div class="sect3">
-<h4 id="monitoring-built-in-metrics"><a class="anchor" href="#monitoring-built-in-metrics"></a>3.4.2. Built-in Boot metrics</h4>
+<h4 id="monitoring-built-in-metrics"><a class="anchor" href="#monitoring-built-in-metrics"></a>3.5.2. Built-in Boot metrics</h4>
 <div class="paragraph">
 <p>Built-in Boot metrics are exposed on the standard <code>/metrics</code> HTTP API.</p>
 </div>
@@ -1597,16 +2041,14 @@ $ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack 
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. Boot Built-in Prometheus Metrics</caption>
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Name</th>
 <th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Labels</th>
 <th class="tableblock halign-left valign-top">Meaning</th>
 </tr>
 </thead>
@@ -1614,31 +2056,28 @@ $ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack 
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boot_cpu_limit</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of CPUs allowed by installed license key</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boot_vm_running</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Total number of currently running virtual machines</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boot_license_expire</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boot license key expiration timestamp</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="filter-by-labels"><a class="anchor" href="#filter-by-labels"></a>3.4.3. Filtering Virtual Machine Pods by Labels</h4>
+<h4 id="filter-by-labels"><a class="anchor" href="#filter-by-labels"></a>3.5.3. Filtering Virtual Machine Pods by Labels</h4>
 
 </div>
 </div>
 <div class="sect2">
-<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.5. Log Files</h3>
+<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.6. Log Files</h3>
 <div class="paragraph">
 <p>Although Boot should just work out of the box, sometimes you may need the log output. Every Boot component is outputting logs to standard output (<code>stdout</code>), so you can use well-known <code>kubectl</code> commands to see the log. Everything related to starting virtual machines is being output by <code>boot</code> container:</p>
 </div>
@@ -1677,12 +2116,12 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cli_flags"><a class="anchor" href="#_cli_flags"></a>3.6. CLI Flags</h3>
+<h3 id="_cli_flags"><a class="anchor" href="#_cli_flags"></a>3.7. CLI Flags</h3>
 <div class="paragraph">
 <p>These command-line flags should be <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#define-a-command-and-arguments-when-you-create-a-pod">specified</a> in Helm chart parameters when starting the cluster.</p>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.6.1. Boot Container Flags</h4>
+<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.7.1. Boot Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -1696,7 +2135,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.6.2. Reloader Container Flags</h4>
+<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.7.2. Reloader Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -2245,7 +2684,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-09 09:21:39 UTC
+Last updated 2023-08-11 04:47:58 UTC
 </div>
 </div>
 </body>
