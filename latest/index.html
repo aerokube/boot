@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-13</span>
+<span id="revdate">2023-08-17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -562,7 +562,18 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </li>
 <li><a href="#main-features">2. Main Features</a>
 <ul class="sectlevel2">
-<li><a href="#virtual-machines">2.1. Virtual Machines</a></li>
+<li><a href="#virtual-machines">2.1. Virtual Machines</a>
+<ul class="sectlevel3">
+<li><a href="#virtual-machines-list">2.1.1. Listing Virtual Machines</a></li>
+<li><a href="#virtual-machines-create">2.1.2. Creating Virtual Machines</a></li>
+<li><a href="#virtual-machines-delete">2.1.3. Deleting Virtual Machines</a></li>
+<li><a href="#virtual-machines-access">2.1.4. Controlling Access</a></li>
+<li><a href="#virtual-machines-resources">2.1.5. Adjusting Computing Resources</a></li>
+<li><a href="#virtual-machines-volumes">2.1.6. Adding Volumes</a></li>
+<li><a href="#virtual-machines-hosts">2.1.7. Adding Host Aliases</a></li>
+</ul>
+</li>
+<li><a href="#access">2.2. Accessing Virtual Machines</a></li>
 </ul>
 </li>
 <li><a href="#configuration">3. Configuration</a>
@@ -589,18 +600,11 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </li>
 <li><a href="#private-container-registry">3.3. Using Private Container Registry</a></li>
 <li><a href="#multiple-namespaces">3.4. Multiple Namespaces Mode</a></li>
-<li><a href="#monitoring">3.5. Monitoring</a>
+<li><a href="#log-files">3.5. Log Files</a></li>
+<li><a href="#cli-flags">3.6. CLI Flags</a>
 <ul class="sectlevel3">
-<li><a href="#monitoring-setup">3.5.1. Setup</a></li>
-<li><a href="#monitoring-built-in-metrics">3.5.2. Built-in Boot metrics</a></li>
-<li><a href="#filter-by-labels">3.5.3. Filtering Virtual Machine Pods by Labels</a></li>
-</ul>
-</li>
-<li><a href="#log-files">3.6. Log Files</a></li>
-<li><a href="#_cli_flags">3.7. CLI Flags</a>
-<ul class="sectlevel3">
-<li><a href="#cli-flags-boot">3.7.1. Boot Container Flags</a></li>
-<li><a href="#cli-flags-reloader">3.7.2. Reloader Container Flags</a></li>
+<li><a href="#cli-flags-boot">3.6.1. Boot Container Flags</a></li>
+<li><a href="#cli-flags-reloader">3.6.2. Reloader Container Flags</a></li>
 </ul>
 </li>
 </ul>
@@ -768,7 +772,7 @@ Host *.vm.boot.svc.cluster.local
 apiVersion: boot.aerokube.com/v1
 kind: VirtualMachine
 metadata:
-  name: virtual-machine-01
+  name: my-vm
   namespace: boot
 spec:
   os: ubuntu
@@ -789,9 +793,9 @@ spec:
 <p>Check SSH connectivity to virtual machine:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ ssh root@virtual-machine-01.vm.boot.svc.cluster.local
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh root@my-vm.vm.boot.svc.cluster.local
 # Some welcome text goes here...
-root@virtual-machine-01:~# # You now have a root access to created virtual machine</code></pre>
+root@my-vm:~# # You now have a root access to created virtual machine</code></pre>
 </div>
 </div>
 </li>
@@ -1132,6 +1136,249 @@ $ helm repo update</code></pre>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="virtual-machines"><a class="anchor" href="#virtual-machines"></a>2.1. Virtual Machines</h3>
+<div class="paragraph">
+<p>The main Boot feature is creating lightweight virtual machines. Such virtual machines can be used for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Functional_testing">Functional software testing</a>, i.e. testing that implemented software features work as expected.</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Penetration_test">Penetration testing</a>, i.e. testing that given software distribution does not contain security vulnerabilities.</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Software_performance_testing">Performance testing</a>, i.e. testing how software performs in terms of responsiveness and stability under a particular workload.</p>
+</li>
+<li>
+<p>Software development. This allows you to have more computing resources (CPUs, memory, disk) than a regular developer workstation allows.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Like traditional virtual machines, Boot virtual machines are accessed using <a href="https://en.wikipedia.org/wiki/Secure_Shell">SSH</a>. That means that you can use any standard tools working on top of SSH to update virtual machine state:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Infrastructure_as_code">Infrastructure as code</a> tools (<a href="https://www.terraform.io/">Terraform</a>, <a href="https://www.ansible.com/">Ansible</a> and so on) to install additional software to virtual machines.</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Integrated_development_environment">Integrated development environments</a> to work with code on remote virtual machines. The most notable products allowing this are <a href="https://code.visualstudio.com/docs/remote/ssh">Visual Studio Code</a> and <a href="https://www.jetbrains.com/remote-development/">Jetbrains IDEs</a>. How to use them with Boot is described in next sections of this documentation.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-list"><a class="anchor" href="#virtual-machines-list"></a>2.1.1. Listing Virtual Machines</h4>
+<div class="paragraph">
+<p>Boot virtual machines are native Kubernetes objects, so listing them can be done with standard <code>kubectl</code> commands:</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing virtual machines</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get vm -n boot
+NAME    FQDN                              IP           OS            CPU      MEM     STATUS    UPTIME
+my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   alpine:3.18   1/512m   512Mi   Running   4s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can see virtual machine name, fully qualified domain name and IP address to access it, used operating system image, CPU and memory limits and requests (<code>limits/requests</code> or simply <code>limits</code> if they have the same value), status and uptime.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-create"><a class="anchor" href="#virtual-machines-create"></a>2.1.2. Creating Virtual Machines</h4>
+<div class="paragraph">
+<p>Creating a virtual machine is as easy as creating any other Kubernetes resource.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a file with virtual machine YAML definition:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat vm.yaml
+apiVersion: boot.aerokube.com/v1
+kind: VirtualMachine
+metadata:
+  name: my-vm
+  namespace: boot
+spec:
+  os: ubuntu
+  authorizedKeys: # Use one or more SSH public keys here
+    - ssh-rsa AAAAB3N... some-key
+    - ssh-rsa AAAAB3N... another-key</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create virtual machine using YAML definition:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl create -f ~/vm.yaml
+virtualmachine.boot.aerokube.com/my-vm created</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Now you can list virtual machines and obtain fully qualified domain name to access this virtual machine. How to access virtual machines is described in <a href="#access">Accessing Virtual Machines</a> section.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-delete"><a class="anchor" href="#virtual-machines-delete"></a>2.1.3. Deleting Virtual Machines</h4>
+<div class="paragraph">
+<p>To delete a virtual machine use standard <code>kubectl</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="title">Delete a virtual machine</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl delete vm my-vm -n boot</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-access"><a class="anchor" href="#virtual-machines-access"></a>2.1.4. Controlling Access</h4>
+<div class="paragraph">
+<p>Boot supports two main SSH authentication ways: <strong>authorized keys</strong> and <strong>user certificates</strong>. How they differ and work is described in <a href="#access">Accessing Virtual Machines</a> section. To add authorized public keys of allowed users - use <code>authorizedKeys</code> field in virtual machine specification:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding authorized keys</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">authorizedKeys</span>: <span class="comment"># A list of SSH public keys allowed to access this virtual machine</span>
+    - <span class="string"><span class="content">ssh-rsa AAAAB3N... some-key</span></span>
+    - <span class="string"><span class="content">ssh-rsa AAAAB3N... another-key</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To allow users to access virtual machine with SSH certificates - you have to add certification authorities used to sign these user certificates to virtual machine <code>trustedUserCAKeys</code> field:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding trusted certification authorities</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">trustedUserCAKeys</span>: <span class="comment"># A list of trusted user certification authorities</span>
+    - <span class="string"><span class="content">ssh-ed25519 AAAAC3N... certification-authority-1</span></span>
+    - <span class="string"><span class="content">ssh-ed25519 AAAAC3N... certification-authority-2</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-resources"><a class="anchor" href="#virtual-machines-resources"></a>2.1.5. Adjusting Computing Resources</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Boot is using exactly the same computing resources configuration YAML format as <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes does</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>By default, virtual machine is consuming computing resources configured in #operating-systems-computing-resources[operating system settings]. You can easily override this behavior by adding resources explicitly:</p>
+</div>
+<div class="listingblock">
+<div class="title">Setting computing resources explicitly</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">resources</span>: <span class="comment"># Explicit computing resources</span>
+    <span class="key">limits</span>:
+      <span class="key">cpu</span>: <span class="string"><span class="content">1000m</span></span>
+      <span class="key">memory</span>: <span class="string"><span class="content">512Mi</span></span>
+    <span class="key">requests</span>:
+      <span class="key">cpu</span>: <span class="string"><span class="content">1000m</span></span>
+      <span class="key">memory</span>: <span class="string"><span class="content">512Mi</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-volumes"><a class="anchor" href="#virtual-machines-volumes"></a>2.1.6. Adding Volumes</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Boot is using exactly the same volumes configuration YAML format as <a href="https://kubernetes.io/docs/concepts/storage/volumes/">Kubernetes does</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To share file between virtual machines or saving their state - use volumes. You can add a volume of any type supported by your Kubernetes cluster. To add a volume:</p>
+</div>
+<div class="listingblock">
+<div class="title">Setting computing resources explicitly</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">volumes</span>: <span class="comment"># We declare a volume</span>
+  - <span class="string"><span class="content">name: my-volume</span></span>
+    <span class="key">emptyDir</span>: <span class="string"><span class="content">{}</span></span>
+  <span class="key">volumeMounts</span>: <span class="comment"># We mount it to a path inside virtual machine</span>
+  - <span class="string"><span class="content">name: my-volume</span></span>
+    <span class="key">mountPath</span>: <span class="string"><span class="content">/some/path</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="virtual-machines-hosts"><a class="anchor" href="#virtual-machines-hosts"></a>2.1.7. Adding Host Aliases</h4>
+<div class="paragraph">
+<p>In some situations you may need to update <code>/etc/hosts</code> file inside virtual machine. To achieve this during virtual machine startup:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating /etc/hosts</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">hostAliases</span>:
+    - <span class="string"><span class="content">ip: &quot;127.0.0.1&quot;</span></span>
+      <span class="key">hostnames</span>:
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">foo.local</span><span class="delimiter">&quot;</span></span>
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">bar.local</span><span class="delimiter">&quot;</span></span>
+    - <span class="string"><span class="content">ip: &quot;10.1.2.3&quot;</span></span>
+      <span class="key">hostnames</span>:
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">foo.remote</span><span class="delimiter">&quot;</span></span>
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">bar.remote</span><span class="delimiter">&quot;</span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="access"><a class="anchor" href="#access"></a>2.2. Accessing Virtual Machines</h3>
 
 </div>
 </div>
@@ -1592,7 +1839,7 @@ Boot is using exactly the same tolerations configuration YAML format as <a href=
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ cat license.key
-bEtvclhlSjNucmR0Zng3cXlibUNJSFhmTGVnMTlhaHVSOGhpVTNRVU9nQ2xTY3crN3loL3I5L0dIY054S2o0Y016Rm1ncVNvSk9nai9aNXo2MUVMbGxjRTRqUUFBclhGbEdCbVJiMDMyRHZldzNpcXpXNkxMeU9DYjMxUVBVWm1mRHdLOWJwWUIzZ3JPUlNpTXdWTWFYQkJxSEh2ZjZkS2ZjTGRCMEhTWTYvcmU2OXRNMDN4VnpNak9ZQ25pN2dTS0dzeExON2xvL21pMjZJd21qakorMWFjaDlNeXFQZ1U3bnNMRkoxRERCanFmUFFhelVuRlJ5Smp0dlZWbENYZEFPYjBBeXVSWmZCVFd4V2xvNXE4em1yME83UmdNRXFBTUxXSmMvY3MwT2t3SzlPbTFGUGZsclRUYzYwMThIcXVsR1FNY25hT3U5QWZrTG5vNFpZZFBRcEcrckQwL0VHMUNMN2lYUkxRczFQb05EQmZ2NGFiYU1DRExvQzBEbjU2Ymk5bWMrbUpnc1VUR3pVaE1MY01ycHZoSS9BVm9ydE1RNWp6dVMwR2RSdHlYTlorMnNvSmpOZ3JQTWJQcGcxZE9zNGEwdnZreEFvZ3QzWWFrME1aSUZWbk1QdUw2bVI2aHZTSGJOYXZXa1lMSWJpRHRiSDlhMXhocyt4a0tsRW1ENnBHRUhPbW9MamI3T2ZQRCt5clRiLy9iR2pZSUV4YVN6TFZFSjI5V0VOMTFYdUFxeUFWUllsTFE3WUZKWXNIdkh4blUyNjluR013N1dRVXRTUCttQ2NqRS8wS2IrZ1F0cUh4eDl2UlcvV2EvU3ErL25BT3U4SlgxckovbU42dDdUZG80SFdEcFJ5bFBKVXdkdkRZd1MxNXA4cm5Gek5Ka05nK0JETWxUYzQ9O2V5SnNhV05sYm5ObFpTSTZJa0p2YjNRZ1pYWmhiSFZoZEdsdmJpSXNJbkJ5YjJSMVkzUWlPaUpDYjI5MElpd2liV0Y0VTJWemMybHZibk1pT2pVd0xDSjBieUk2TVRZNU1URTVNell3TUgwPQ==</code></pre>
+Ulh3SnN6S3JYTVg5UmIzaHNiWUpOaE1rcGltQzJxRVZVbGdHMVliNlZDbnNjVkc5b1M1eGNEbTRZYkN6c2RaTmtaaGs0cDExQWRlOTA2YVNxK3NNV2JORHd0NkFEUEZTNk16UXVCcWhQMVovajhhdWlJZDJzdW9yVEFRTFppSnp2NHloMkdZYXNVVlNhRk05Q2ZOUk4rd1JCNHlXRlFwRmNwbVRFWk9hdXRQWjJvVUM0TldGdXR2OUtiangrT0hkRmJNK2xtQUhCYVArWDhlUTJoNnFzRlExdHl2Zm11QmtVWUNhRHBSTEhzVTdLQXVEZFZKWlhUSU9PRjNjUlFIODhyYmZKTkZVWm1sNG5UZnJHM2RFRTJmYkMyakNwVndLWmJaMkgrVi9zeGRXd0dDblZMNFAyYXVyNjQ4cDhnb0xvRGdZMGlnRmM1WXFPODVGK0U4TlRPWWpyMGtPRThnY1lRcU1JT1JWZEkwQ0ZNVkk3SkFpbHI0UzhHcHduY2Vwcks3ZERtbnVLNmRIeGVnZHhqSGNIN1laZlR6U2prZ001S2R5Q1RCSlF0RXB2VjkvUlF5MUV3M3RIcCtTRWcvTjl3eUF5VE4xUFl4Q0xtU2t0QjFNblZVeURZby9sWXlCYlQrSGNlSUExdktTVThDQlZFaFNRZmdRS1BmbUxFblBuSmxhVHZmWXhnVUF3b3B3dmFwaHFmaExRNTVEM2d6RzA4ZDlsNTVGVGE3Vlo4b2Vpd2FabUFDWHZRZ3NlMTUzT29SdDV1M1VsNGNVTmFUOGUxbWgva2JKajJ1Mjk2cysvalBBa3JVRnNVdWlNZHA1a2Zrc2hTQlhybDZyVlFJYytDcWE3MUFBdWpyT1lPNm1JZ3BNZXAvYUI4cXhRR29uTUVzVGRrRlVKR289O2V5SnNhV05sYm5ObFpTSTZJa1JsWm1GMWJIUWlMQ0p3Y205a2RXTjBJam9pUW05dmRDSXNJbTFoZUZObGMzTnBiMjV6SWpveGZRPT0=</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1621,8 +1868,8 @@ bEtvclhlSjNucmR0Zng3cXlibUNJSFhmTGVnMTlhaHVSOGhpVTNRVU9nQ2xTY3crN3loL3I5L0dIY054
 <div class="title">Listing licenses (free license key output)</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME   LICENSEE   CPUS   EXPIRES   STATUS   NAMESPACE
-boot   Default    1      Never     Ok       boot</code></pre>
+NAME   LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+boot   Default    1      0%      Never     Ok       boot        2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1657,12 +1904,12 @@ boot   Default    1      Never     Ok       boot</code></pre>
 <div class="title">Listing licenses (longer and fully qualified resource name)</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses.boot
-NAME   LICENSEE   CPUS   EXPIRES   STATUS   NAMESPACE
-boot   Default    1      Never     Ok       boot
+NAME   LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+boot   Default    1      0%      Never     Ok       boot        2m42s
 
 $ kubectl get licenses.boot.aerokube.com
-NAME   LICENSEE   CPUS   EXPIRES   STATUS   NAMESPACE
-boot   Default    1      Never     Ok       boot</code></pre>
+NAME   LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+boot   Default    1      0%      Never     Ok       boot        2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1707,7 +1954,7 @@ status:
 <p>To update an existing license key - simply update <code>data</code> field in respective license object:</p>
 </div>
 <div class="listingblock">
-<div class="title">Updating license key</div>
+<div class="title">Updating license key with kubectl</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl edit license boot # Replace data field with your new license key in text editor, save and exit</code></pre>
 </div>
@@ -1785,9 +2032,9 @@ spec:
 <div class="title">Two license keys are applied</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE     CPUS    EXPIRES   STATUS   NAMESPACE
-license-key-ns1   Acme Inc.    10      Never     Ok       ns1
-license-key-ns2   Acme Inc.    20      Never     Ok       ns2</code></pre>
+NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+license-key-ns1   Acme Inc.  10     0%      20d       Ok       ns1         2m42s
+license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s</code></pre>
 </div>
 </div>
 </li>
@@ -1812,20 +2059,15 @@ license-key-ns2   Acme Inc.    20      Never     Ok       ns2</code></pre>
 <div class="sect3">
 <h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.2.5. License Key Expiration</h4>
 <div class="paragraph">
-<p>There are several ways to always have active Boot license keys:</p>
-</div>
-<div class="sect4">
-<h5 id="license-expiration-kubectl"><a class="anchor" href="#license-expiration-kubectl"></a>Option 1: Check Expiring License Keys with kubectl</h5>
-<div class="paragraph">
-<p>The easiest way to check for expiring or expired license keys is just listing them with <code>kubectl</code>:</p>
+<p>To check for expiring or expired license keys - just list them with <code>kubectl</code>:</p>
 </div>
 <div class="listingblock">
 <div class="title">Listing license keys to understand when they expire</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE     CPUS    EXPIRES   STATUS   NAMESPACE
-license-key-ns1   Acme Inc.    10      32d       Ok       ns1
-license-key-ns2   Acme Inc.    20      today     Ok       ns2</code></pre>
+NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+license-key-ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
+license-key-ns2   Acme Inc.  20     0%      today     Ok       ns2         2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1835,9 +2077,9 @@ license-key-ns2   Acme Inc.    20      today     Ok       ns2</code></pre>
 <div class="title">When one license key has expired</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE     CPUS    EXPIRES   STATUS   NAMESPACE
-license-key-ns1   Acme Inc.    10      32d       Ok       ns1
-license-key-ns2   Acme Inc.    20      Already   Expired  ns2</code></pre>
+NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+license-key-ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
+license-key-ns2   Acme Inc.  20     0%      Already   Expired  ns2         2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1854,25 +2096,6 @@ You can also use Kubernetes API directly instead of <code>kubectl</code> to list
 </td>
 </tr>
 </table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="license-expiration-prometheus"><a class="anchor" href="#license-expiration-prometheus"></a>Option 2: Use Prometheus License Key Expiration Metric</h5>
-<div class="paragraph">
-<p>Another possible way of getting license expiration information is using built-in Prometheus metric called <code>boot_license_expire</code>. This is described in detail in <a href="#monitoring">monitoring</a> section.</p>
-</div>
-<div class="listingblock">
-<div class="title">Prometheus license key expiration metric</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ curl -s https://boot.example.com/metrics | grep license_expire
-# HELP boot_license_expire Boot license expiration time.
-# TYPE boot_license_expire gauge
-boot_license_expire 1.6444512e+09</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>These metrics are collected by Prometheus automatically, so you only need to configure alerts and charts if needed.</p>
-</div>
 </div>
 </div>
 <div class="sect3">
@@ -1982,102 +2205,7 @@ aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</c
 
 </div>
 <div class="sect2">
-<h3 id="monitoring"><a class="anchor" href="#monitoring"></a>3.5. Monitoring</h3>
-<div class="paragraph">
-<p>You can easily visualize browsers consumption and other Boot metrics with <a href="https://prometheus.io/">Prometheus</a> and <a href="https://grafana.com/">Grafana</a>. One of the simplest ways of deploying Prometheus in Kubernetes is using <a href="https://github.com/coreos/prometheus-operator">Prometheus Operator</a>.</p>
-</div>
-<div class="sect3">
-<h4 id="monitoring-setup"><a class="anchor" href="#monitoring-setup"></a>3.5.1. Setup</h4>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Boot should be already running (e.g. in <code>boot</code> namespace).</p>
-</li>
-<li>
-<p>Deploy Prometheus and Grafana using Prometheus Operator (e.g. to <code>monitoring</code> namespace).</p>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>An example installation command using Helm 3 is:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-$ helm repo update
-$ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring</pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</li>
-<li>
-<p>Having a configured Prometheus instance you have two ways of getting metrics: <strong>using built-in Boot metrics</strong> and <strong>filtering virtual machines by labels</strong>.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="monitoring-built-in-metrics"><a class="anchor" href="#monitoring-built-in-metrics"></a>3.5.2. Built-in Boot metrics</h4>
-<div class="paragraph">
-<p>Built-in Boot metrics are exposed on the standard <code>/metrics</code> HTTP API.</p>
-</div>
-<div class="listingblock">
-<div class="title">Getting Prometheus metrics</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ curl -s https://boot.example.com/metrics
-# A lot of metrics come here</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The following metrics are available:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Boot Built-in Prometheus Metrics</caption>
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">boot_cpu_limit</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of CPUs allowed by installed license key</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">boot_vm_running</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Total number of currently running virtual machines</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">boot_license_expire</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">gauge</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boot license key expiration timestamp</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="filter-by-labels"><a class="anchor" href="#filter-by-labels"></a>3.5.3. Filtering Virtual Machine Pods by Labels</h4>
-
-</div>
-</div>
-<div class="sect2">
-<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.6. Log Files</h3>
+<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.5. Log Files</h3>
 <div class="paragraph">
 <p>Although Boot should just work out of the box, sometimes you may need the log output. Every Boot component is outputting logs to standard output (<code>stdout</code>), so you can use well-known <code>kubectl</code> commands to see the log. Everything related to starting virtual machines is being output by <code>boot</code> container:</p>
 </div>
@@ -2116,12 +2244,12 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cli_flags"><a class="anchor" href="#_cli_flags"></a>3.7. CLI Flags</h3>
+<h3 id="cli-flags"><a class="anchor" href="#cli-flags"></a>3.6. CLI Flags</h3>
 <div class="paragraph">
 <p>These command-line flags should be <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#define-a-command-and-arguments-when-you-create-a-pod">specified</a> in Helm chart parameters when starting the cluster.</p>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.7.1. Boot Container Flags</h4>
+<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.6.1. Boot Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -2135,7 +2263,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.7.2. Reloader Container Flags</h4>
+<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.6.2. Reloader Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -2593,7 +2721,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <li>
 <p>For simplicity, we calculated monthly prices for some frequent cases:</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 6. Boot License Pricing</caption>
+<caption class="title">Table 5. Boot License Pricing</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -2684,7 +2812,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-13 18:56:40 UTC
+Last updated 2023-08-17 16:03:29 UTC
 </div>
 </div>
 </body>
