@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-22</span>
+<span id="revdate">2023-08-27</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -573,7 +573,13 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#virtual-machines-hosts">2.1.7. Adding Host Aliases</a></li>
 </ul>
 </li>
-<li><a href="#access">2.2. Accessing Virtual Machines</a></li>
+<li><a href="#access">2.2. Accessing Virtual Machines</a>
+<ul class="sectlevel3">
+<li><a href="#access-overview">2.2.1. Overview</a></li>
+<li><a href="#access-auth-technologies">2.2.2. Authentication Technologies</a></li>
+<li><a href="#access-howto">2.2.3. Accessing a Virtual Machine</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#configuration">3. Configuration</a>
@@ -588,23 +594,24 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#operating-systems-tolerations">3.1.6. Tolerations</a></li>
 </ul>
 </li>
-<li><a href="#license">3.2. License Key</a>
+<li><a href="#jumphost">3.2. Jump Host Configuration</a></li>
+<li><a href="#license">3.3. License Key</a>
 <ul class="sectlevel3">
-<li><a href="#license-list">3.2.1. Listing License Keys</a></li>
-<li><a href="#license-update">3.2.2. Updating a License Key</a></li>
-<li><a href="#license-multiple">3.2.3. Multiple License Keys</a></li>
-<li><a href="#license-delete">3.2.4. Deleting a License Key</a></li>
-<li><a href="#license-expiration">3.2.5. License Key Expiration</a></li>
-<li><a href="#license-ops">3.2.6. Updating License Key From An External Secret</a></li>
+<li><a href="#license-list">3.3.1. Listing License Keys</a></li>
+<li><a href="#license-update">3.3.2. Updating a License Key</a></li>
+<li><a href="#license-multiple">3.3.3. Multiple License Keys</a></li>
+<li><a href="#license-delete">3.3.4. Deleting a License Key</a></li>
+<li><a href="#license-expiration">3.3.5. License Key Expiration</a></li>
+<li><a href="#license-ops">3.3.6. Updating License Key From An External Secret</a></li>
 </ul>
 </li>
-<li><a href="#private-container-registry">3.3. Using Private Container Registry</a></li>
-<li><a href="#multiple-namespaces">3.4. Multiple Namespaces Mode</a></li>
-<li><a href="#log-files">3.5. Log Files</a></li>
-<li><a href="#cli-flags">3.6. CLI Flags</a>
+<li><a href="#private-container-registry">3.4. Using Private Container Registry</a></li>
+<li><a href="#multiple-namespaces">3.5. Multiple Namespaces Mode</a></li>
+<li><a href="#log-files">3.6. Log Files</a></li>
+<li><a href="#cli-flags">3.7. CLI Flags</a>
 <ul class="sectlevel3">
-<li><a href="#cli-flags-boot">3.6.1. Boot Container Flags</a></li>
-<li><a href="#cli-flags-reloader">3.6.2. Reloader Container Flags</a></li>
+<li><a href="#cli-flags-boot">3.7.1. Boot Container Flags</a></li>
+<li><a href="#cli-flags-reloader">3.7.2. Reloader Container Flags</a></li>
 </ul>
 </li>
 </ul>
@@ -1187,6 +1194,8 @@ my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   alpine:3.18   1/512m   51
 </div>
 <div class="sect3">
 <h4 id="virtual-machines-create"><a class="anchor" href="#virtual-machines-create"></a>2.1.2. Creating Virtual Machines</h4>
+<div class="sect4">
+<h5 id="virtual-machines-create-yaml"><a class="anchor" href="#virtual-machines-create-yaml"></a>Option 1. Using kubectl and YAML manifest</h5>
 <div class="paragraph">
 <p>Creating a virtual machine is as easy as creating any other Kubernetes resource.</p>
 </div>
@@ -1225,6 +1234,11 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
 <p>Now you can list virtual machines and obtain fully qualified domain name to access this virtual machine. How to access virtual machines is described in <a href="#access">Accessing Virtual Machines</a> section.</p>
 </div>
 </div>
+<div class="sect4">
+<h5 id="virtual-machines-create-plugin"><a class="anchor" href="#virtual-machines-create-plugin"></a>Option 2. Using Boot plugin for kubectl</h5>
+
+</div>
+</div>
 <div class="sect3">
 <h4 id="virtual-machines-delete"><a class="anchor" href="#virtual-machines-delete"></a>2.1.3. Deleting Virtual Machines</h4>
 <div class="paragraph">
@@ -1240,7 +1254,7 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
 <div class="sect3">
 <h4 id="virtual-machines-access"><a class="anchor" href="#virtual-machines-access"></a>2.1.4. Controlling Access</h4>
 <div class="paragraph">
-<p>Boot supports two main SSH authentication ways: <strong>authorized keys</strong> and <strong>user certificates</strong>. How they differ and work is described in <a href="#access">Accessing Virtual Machines</a> section. To add authorized public keys of allowed users - use <code>authorizedKeys</code> field in virtual machine specification:</p>
+<p>Boot supports two main SSH authentication technologies: <strong>authorized keys</strong> and <strong>user certificates</strong>. How they differ and work is described in <a href="#access">Accessing Virtual Machines</a> section. To add authorized public keys of allowed users - use <code>authorizedKeys</code> field in virtual machine specification:</p>
 </div>
 <div class="listingblock">
 <div class="title">Adding authorized keys</div>
@@ -1274,6 +1288,9 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
     - <span class="string"><span class="content">ssh-ed25519 AAAAC3N... certification-authority-1</span></span>
     - <span class="string"><span class="content">ssh-ed25519 AAAAC3N... certification-authority-2</span></span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>How authorized keys and certificates differ is explained in detail in <a href="#access">this</a> section.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1379,7 +1396,189 @@ Boot is using exactly the same volumes configuration YAML format as <a href="htt
 </div>
 <div class="sect2">
 <h3 id="access"><a class="anchor" href="#access"></a>2.2. Accessing Virtual Machines</h3>
+<div class="paragraph">
+<p>We already noted in <a href="#virtual-machines">virtual machines</a> section that Boot virtual machines are accessed using <a href="https://en.wikipedia.org/wiki/Secure_Shell">SSH</a>. This section describes different options allowing to configure secure access to virtual machines.</p>
+</div>
+<div class="sect3">
+<h4 id="access-overview"><a class="anchor" href="#access-overview"></a>2.2.1. Overview</h4>
+<div class="paragraph">
+<p>As you probably know SSH consists of two components: an SSH server (also known as <code>sshd</code>) and an SSH client (usually command is called just <code>ssh</code>). SSH server in the majority of cases is listening on standard TCP port 22. Boot is running in Kubernetes and thus every network port that you wish to access from the outside, should be explicitly configured as Kubernetes service. Our goal is to be able to run an unlimited number of virtual machines, so doing this for every machine is too much work. Also, we want to be able to globally protect all virtual machines from unauthorized access. SSH provides a standard way of solving this task called <a href="https://en.wikipedia.org/wiki/Jump_server">jump host</a>. Jump host is an intermediary host that SSH client should successfully connect in order to access target host.</p>
+</div>
+<div class="paragraph">
+<div class="title">Jump Host</div>
+<p><span class="image"><img src="img/jump-host.png" alt="jump host"></span></p>
+</div>
+<div class="paragraph">
+<p>For security purposes Boot is by default using non-standard port <code>2222</code> for jump host. This is because in Unix family operating systems port numbers up to 1024 require <code>root</code> privileges for the process, and it is recommended to use non-privileged users when possible. When you install Boot with default settings jump host is configured automatically and should work out of the box. If you wish to have full control over security, existing jump host configuration options are described <a href="#jumphost">here</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="access-auth-technologies"><a class="anchor" href="#access-auth-technologies"></a>2.2.2. Authentication Technologies</h4>
+<div class="paragraph">
+<p>SSH supports two main authentication technologies: <strong>keys</strong> (simpler and more popular) and <strong>certificates</strong> (more complicated but more powerful). Both technologies rely on <a href="https://en.wikipedia.org/wiki/Public-key_cryptography">public key cryptography</a>, which is itself based on mathematical problems that are easy to do in one direction and very hard to do in the reverse direction for modern computers. For example, <a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA</a> system is using computational complexity of <a href="https://en.wikipedia.org/wiki/Integer_factorization">finding factors</a> of large prime numbers. Similarly, <a href="https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm">ECDSA</a> and <a href="https://en.wikipedia.org/wiki/EdDSA">EdDSA</a> systems are using computational complexity of finding <a href="https://en.wikipedia.org/wiki/Discrete_logarithm">discrete logarithm</a> of an <a href="https://en.wikipedia.org/wiki/Elliptic_curve">elliptic curve</a> over finite fields.</p>
+</div>
+<div class="sect4">
+<h5 id="access-auth-technologies-keys"><a class="anchor" href="#access-auth-technologies-keys"></a>User and Host Keys</h5>
+<div class="paragraph">
+<p>In public key cryptography every side of communication (user and remote host) has a key. A key belonging to a user is called <strong>user key</strong>. This key is used to access remote hosts with SSH instead of providing a password. Similarly, a key belonging to a remote host (e.g. a Boot virtual machine) is called <strong>host key</strong>. The main goal of this key from the user point of view is verifying authenticity of the host, i.e. making sure you are accessing the host you expected to access.</p>
+</div>
+<div class="paragraph">
+<div class="title">Using private and public keys for encrypted data exchange</div>
+<p><span class="image"><img src="img/keypair-encryption.png" alt="keypair encryption"></span></p>
+</div>
+<div class="paragraph">
+<p>Both user and host keys are divided into two parts: <strong>public key part</strong> (or just <strong>public key</strong>) and <strong>private key part</strong> (or just <strong>private key</strong>). Because every key contains two parts, it is often called a <strong>keypair</strong>. Public key part is storing exact parameters of the mathematical problem used by exact public cryptography algorithm, e.g. large prime numbers in RSA cryptography. Private key part is storing solution of the same mathematical problem, e.g. factors of the same large prime numbers. Because of that a public key part can only be used to <strong>encrypt</strong> some message that an owner of the private key part will be able to decrypt.</p>
+</div>
+<div class="paragraph">
+<div class="title">Using private and public keys for digital signatures</div>
+<p><span class="image"><img src="img/keypair-signature.png" alt="keypair signature"></span></p>
+</div>
+<div class="paragraph">
+<p>A private key part in addition to decrypting messages can be also used to <strong>sign</strong> any piece of information (called <strong>message</strong>). Signing (or <strong>creating a digital signature</strong>) means generating a set of bytes allowing to verify that a concrete message was created by the owner of the private key and that it was not modified since that time. Generated signature is sent simultaneously with the message and every recipient having a <strong>sender public key</strong> is able to verify that signature is valid. Because of these properties, a public key part can be freely sent over insecure communication channels. Contrarily, a private key part should be accessible to its owner only.</p>
+</div>
+<div class="paragraph">
+<p>Going back to SSH, let&#8217;s take a look at a typical usage of the private and public keys. A pair of <strong>user private and public keys</strong> can be generated with one command:</p>
+</div>
+<div class="listingblock">
+<div class="title">Generating a key pair</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/myuser/.ssh/id_rsa): my_key
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in my_key
+Your public key has been saved in my_key.pub
+The key fingerprint is:
+SHA256:gHexXzD2EuQFcXgsnJVTpkTKfDMSI5uFUK3J58/rjf8 my_key
+The key's randomart image is:
++---[RSA 3072]----+
+|      .o+=%O*oo  |
+|     .  .%*%=o   |
+|    . o.=oBoB.   |
+|     . o+..= o   |
+|        So.      |
+|          .      |
+|           o     |
+|            oo   |
+|           .+oo.E|
++----[SHA256]-----+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this output private key was saved to <code>my_key</code> file in current directory and public key - to <code>my_key.pub</code>. These files look like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">How keys look like</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash"># Private key
+$ cat my_key
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----
 
+# Public key
+$ cat my_key.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCiL+Xa7eyclNsdiBw5JKrZYeZTD1bLXSV1mBcMKBHsdqG3G9YHSfTle6sgh5SYel8smiKckQrhJwju5pqC3AgPtCgUeyiTTOWSlIweMktt1gACq6i2OYLMG4q0bdgxw9fQKiNIKQO0UCWKpRMN75F8nRodXJR6osmEI4owR4btQ0Au3SXOlRIN5U1iIGeXJ3wH6KIFa0XswZOIxPGTx9dus73tcXynU+MqEKmnGOhyKVAjCHHkcHSsmPLm8OiSm+sVzqSRwyN9/YXMubUFswf9Y5+o2mzNNFXeUrw8IBCCZYz+8Eg1F1jtnp44lV4NK/L4n4DzwCOd8SpXQweh9KhhWtqWzbpYZqwU4JugmVOCxp8VZhTE6L0EY+zll7WSoNmZubqXepYYLVMPTDJbDoGDRdTSbnM6yZk8bozxdsgBdYgSubGyxNkfHWxTN+Dl/lbtZ2hY2hiqRqNljTX4gHQ+EKsHFF2KjgH6lHgxVXSGC2jzG1avfH2oX7BrTvRKh18= my_key</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Host keys have exactly the same format as user keys. Although you can generate these keys manually and point to them in SSH server configuration, in the majority of cases they are automatically generated during the first SSH server startup and usually reside in <code>/etc/ssh/ssh_host_*</code> files. To access a host in SSH you have to copy public keys of every authorized used to the list of authorized keys on this host. Exact location of the text configuration file(s) with a list of authorized user keys can be provided in SSH server settings. When working with virtual machines a typical workflow is to provide a list of authorized keys of a new virtual machine before virtual machine is created. Having this list, respective cloud platform automatically copies all authorized keys to correct configuration file inside virtual machine being started.</p>
+</div>
+<div class="paragraph">
+<p>Boot works exactly the same as any other cloud platform and allows to provide a list of authorized public keys for every virtual machine. The only difference is that you have to indicate the same authorized public key in two locations:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>In jump host configuration.</strong> This is needed to allow authorized key owner to pass through jump host and to be able to connect (but not always access!) to the virtual machines created by Boot. A list of jump host authorized keys can be provided in <code>values.yaml</code> file when deploying Boot with Helm:</p>
+<div class="listingblock">
+<div class="title">Setting Boot jump host authorized keys in values.yaml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="key">jumphost</span>:
+    <span class="key">authorizedKeys</span>:
+      - <span class="string"><span class="content">ssh-rsa AAAAB3NzaC...rTvRKh18= my_key</span></span> <span class="comment"># See public key contents above</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How to do this is explained in detail in <a href="#jumphost">jump host documentation</a>.</p>
+</div>
+</li>
+<li>
+<p><strong>In every created virtual machine properties.</strong> This allows to access concrete virtual machine. When creating virtual machines with <a href="#virtual-machines-create-yaml">kubectl and YAML</a> respective definition looks like this:</p>
+<div class="listingblock">
+<div class="title">Adding authorized keys to new virtual machine YAML definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">authorizedKeys</span>: <span class="comment"># A list of SSH public keys allowed to access this virtual machine</span>
+    - <span class="string"><span class="content">ssh-rsa AAAAB3NzaC...rTvRKh18= my_key</span></span> <span class="comment"># See public key contents above</span>
+    - <span class="string"><span class="content">ssh-rsa AAAAB3N... another-key</span></span> <span class="comment"># Another user public key contents</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you are creating virtual machines with <a href="#virtual-machines-create-plugin">kubectl plugin</a> - use <code>-auth-keys</code> flag:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding authorized keys to new virtual machine with kubectl plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -auth-keys /path/to/authorized_keys.file -n boot</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect4">
+<h5 id="access-auth-technologies-certs"><a class="anchor" href="#access-auth-technologies-certs"></a>User and Host Certificates</h5>
+
+</div>
+</div>
+<div class="sect3">
+<h4 id="access-howto"><a class="anchor" href="#access-howto"></a>2.2.3. Accessing a Virtual Machine</h4>
+
+</div>
 </div>
 </div>
 </div>
@@ -1814,7 +2013,11 @@ Boot is using exactly the same tolerations configuration YAML format as <a href=
 </div>
 </div>
 <div class="sect2">
-<h3 id="license"><a class="anchor" href="#license"></a>3.2. License Key</h3>
+<h3 id="jumphost"><a class="anchor" href="#jumphost"></a>3.2. Jump Host Configuration</h3>
+
+</div>
+<div class="sect2">
+<h3 id="license"><a class="anchor" href="#license"></a>3.3. License Key</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1846,7 +2049,7 @@ Ulh3SnN6S3JYTVg5UmIzaHNiWUpOaE1rcGltQzJxRVZVbGdHMVliNlZDbnNjVkc5b1M1eGNEbTRZYkN6
 <p>In Boot license keys (or just <code>licenses</code>) are stored in <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom Kubernetes resource</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="license-list"><a class="anchor" href="#license-list"></a>3.2.1. Listing License Keys</h4>
+<h4 id="license-list"><a class="anchor" href="#license-list"></a>3.3.1. Listing License Keys</h4>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1949,7 +2152,7 @@ status:
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-update"><a class="anchor" href="#license-update"></a>3.2.2. Updating a License Key</h4>
+<h4 id="license-update"><a class="anchor" href="#license-update"></a>3.3.2. Updating a License Key</h4>
 <div class="paragraph">
 <p>To update an existing license key - simply update <code>data</code> field in respective license object:</p>
 </div>
@@ -1964,7 +2167,7 @@ status:
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-multiple"><a class="anchor" href="#license-multiple"></a>3.2.3. Multiple License Keys</h4>
+<h4 id="license-multiple"><a class="anchor" href="#license-multiple"></a>3.3.3. Multiple License Keys</h4>
 <div class="paragraph">
 <p>Boot allows to share the same license key among several Kubernetes namespaces and in the majority of cases a single license key should be enough. However, in some cases you may want to use a separate Boot instance and a separate license key for some teams. To achieve this:</p>
 </div>
@@ -2042,7 +2245,7 @@ license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-delete"><a class="anchor" href="#license-delete"></a>3.2.4. Deleting a License Key</h4>
+<h4 id="license-delete"><a class="anchor" href="#license-delete"></a>3.3.4. Deleting a License Key</h4>
 <div class="paragraph">
 <p>To delete an existing license key - simply delete respective license object:</p>
 </div>
@@ -2057,7 +2260,7 @@ license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.2.5. License Key Expiration</h4>
+<h4 id="license-expiration"><a class="anchor" href="#license-expiration"></a>3.3.5. License Key Expiration</h4>
 <div class="paragraph">
 <p>To check for expiring or expired license keys - just list them with <code>kubectl</code>:</p>
 </div>
@@ -2099,7 +2302,7 @@ You can also use Kubernetes API directly instead of <code>kubectl</code> to list
 </div>
 </div>
 <div class="sect3">
-<h4 id="license-ops"><a class="anchor" href="#license-ops"></a>3.2.6. Updating License Key From An External Secret</h4>
+<h4 id="license-ops"><a class="anchor" href="#license-ops"></a>3.3.6. Updating License Key From An External Secret</h4>
 <div class="paragraph">
 <p>In some cases you still may want to store license key in a <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes secret</a> and allow Boot to automatically read license key from this secret. To achieve this we provide a dedicated component called <code>license-ops</code>. This component is a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes job</a> that reads license key contents from configured secret and automatically updates custom Kubernetes resource being used by Boot. To enabled <code>license-ops</code> you need to install one more Helm chart:</p>
 </div>
@@ -2143,7 +2346,7 @@ You can also use Kubernetes API directly instead of <code>kubectl</code> to list
 </div>
 </div>
 <div class="sect2">
-<h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.3. Using Private Container Registry</h3>
+<h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.4. Using Private Container Registry</h3>
 <div class="paragraph">
 <p>By default, Boot images (<code>aerokube/boot</code>, <code>aerokube/jumphost</code> and so on) are downloaded from public container images registry. If in your environment due to security restrictions container images can only be downloaded from private registry (e.g. <code>my-registry.example.com</code>) you need to configure Boot to work with this registry. To do this:</p>
 </div>
@@ -2201,11 +2404,11 @@ aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</c
 </div>
 </div>
 <div class="sect2">
-<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.4. Multiple Namespaces Mode</h3>
+<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.5. Multiple Namespaces Mode</h3>
 
 </div>
 <div class="sect2">
-<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.5. Log Files</h3>
+<h3 id="log-files"><a class="anchor" href="#log-files"></a>3.6. Log Files</h3>
 <div class="paragraph">
 <p>Although Boot should just work out of the box, sometimes you may need the log output. Every Boot component is outputting logs to standard output (<code>stdout</code>), so you can use well-known <code>kubectl</code> commands to see the log. Everything related to starting virtual machines is being output by <code>boot</code> container:</p>
 </div>
@@ -2244,12 +2447,12 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="cli-flags"><a class="anchor" href="#cli-flags"></a>3.6. CLI Flags</h3>
+<h3 id="cli-flags"><a class="anchor" href="#cli-flags"></a>3.7. CLI Flags</h3>
 <div class="paragraph">
 <p>These command-line flags should be <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#define-a-command-and-arguments-when-you-create-a-pod">specified</a> in Helm chart parameters when starting the cluster.</p>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.6.1. Boot Container Flags</h4>
+<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.7.1. Boot Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -2263,7 +2466,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.6.2. Reloader Container Flags</h4>
+<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.7.2. Reloader Container Flags</h4>
 <div class="paragraph">
 <p>The following flags are supported:</p>
 </div>
@@ -2812,7 +3015,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-22 12:28:40 UTC
+Last updated 2023-08-27 14:55:14 UTC
 </div>
 </div>
 </body>
