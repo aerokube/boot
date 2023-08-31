@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-27</span>
+<span id="revdate">2023-08-31</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -578,6 +578,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#access-overview">2.2.1. Overview</a></li>
 <li><a href="#access-auth-technologies">2.2.2. Authentication Technologies</a></li>
 <li><a href="#access-howto">2.2.3. Accessing a Virtual Machine</a></li>
+<li><a href="#access-host-cert">2.2.4. Trusting Boot Host Certificate</a></li>
 </ul>
 </li>
 </ul>
@@ -1572,11 +1573,224 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCiL+Xa7eyclNsdiBw5JKrZYeZTD1bLXSV1mBcMKBHs
 </div>
 <div class="sect4">
 <h5 id="access-auth-technologies-certs"><a class="anchor" href="#access-auth-technologies-certs"></a>User and Host Certificates</h5>
+<div class="paragraph">
+<p>Although user and host keys remain the most popular SSH authentication technology, they have several important drawbacks:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Need to copy the same authorized user key to every virtual machine you need to access.</p>
+</li>
+<li>
+<p>Need to explicitly trust every host key before accessing this host.</p>
+</li>
+<li>
+<p>Keys do not store information about usernames allowed to authenticate with this key.</p>
+</li>
+<li>
+<p>Keys have no duration settings, i.e. no start and expiration date, so they are rarely \ never rotated.</p>
+</li>
+<li>
+<p>Keys have no granular permissions, i.e. they allow to use all features of SSH server that are not explicitly forbidden: interactive sessions, port forwarding, X11 forwarding, agent forwarding.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Recent SSH versions support another authentication technology called <strong>certificates</strong>. A certificate is a public user key with additional metadata (allowed usernames, duration settings, permissions and so on) signed by a <strong>certification authority (CA)</strong>. A certification authority is any person or organization that you trust. This can be for example an information security department of your company or a specialized third-party organization.</p>
+</div>
+<div class="paragraph">
+<div class="title">Certificate is signed by a certification authority</div>
+<p><span class="image"><img src="img/certificate-ca-sign.png" alt="certificate ca sign"></span></p>
+</div>
+<div class="paragraph">
+<p>Working with SSH certificates starts by creating a standard SSH key pair consisting of a private key and a public key. Then public key is sent to a certification authority, that adds a digital signature and required metadata to this public key. The resulting file is called an <strong>SSH certificate</strong>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Certification authority should be trusted by user and host</div>
+<p><span class="image"><img src="img/certificate-encryption.png" alt="certificate encryption"></span></p>
+</div>
+<div class="paragraph">
+<p>The main idea behind certificates is that instead of copying authorized keys of every user we have to trust all certificates signed by a certification authority that we trust. For example, we trust all SSH certificates created by our information security department. The only thing we need to provide in that case is <strong>certification authority certificate (CA certificate)</strong>. Like any other certificate this certificate contains a public key and metadata: certification authority name, expiration information and other stuff. When we copy CA certificate to the list of trusted CA certificates a host, this host is then able to read public key from CA certificate and use it to check digital signature on every certificate that was created by this authority. When digital signature on user certificate is valid, then user SSH connection to the host is accepted.</p>
+</div>
+<div class="paragraph">
+<p>Similarly to user certificate, every host can have a <strong>host certificate</strong> and users are able to check that this certificate was issued by a trusted certification authority. For connection encryption purposes certificates work exactly the same as authorized keys. To encrypt and send some data to a user, host during SSH connection receives certificate from user, extracts public key from this certificate and uses it for encryption. Only user having private key corresponding to certificate public key can decrypt the data.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="olist arabic">
+<div class="title">In the example below we create new certification authority keys. In real life your information security department or responsible third-party organization already has these keys. We demonstrate how to do this here just to show you the entire perspective.</div>
+<ol class="arabic">
+<li>
+<p>We use <code>ed25519</code> encryption algorithm for certification authority because this is one of the most efficient algorithms for the moment.</p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s now take a look at a typical usage of the user certificates. We assume that we already have a keypair consisting of <code>my_key</code> and <code>my_key.pub</code> files generated in <a href="#access-auth-technologies-keys">previous section</a>. Let&#8217;s start by creating a certification authority keys:</p>
+</div>
+<div class="listingblock">
+<div class="title">Creating certification authority</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh-keygen -t ed25519 -f test_ca -C 'test-ca'
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in test_ca
+Your public key has been saved in test_ca.pub
+The key fingerprint is:
+SHA256:uGmsLCSBD3Zwu05jIDMPKu+xMap+eBQTk5Tqf0enhFg test-ca
+The key's randomart image is:
++--[ED25519 256]--+
+|  ..o            |
+| . *             |
+|. + +            |
+|O+ = E .         |
+|=Oo * o S        |
+|+.+B o = .       |
+|.+@ . B o        |
+| oo@ + o         |
+|=o=.+ .          |
++----[SHA256]-----+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Like with a regular SSH key pair, this will create two files:</p>
+</div>
+<div class="listingblock">
+<div class="title">Certification authority files</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash"># Private key, keep it secret!
+$ cat test_ca
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACDdXZr6c+pc0+IZskr+Hvgm8vU5HqSPQWfokHqaRLz1PwAAAJD4P2KI+D9i
+iAAAAAtzc2gtZWQyNTUxOQAAACDdXZr6c+pc0+IZskr+Hvgm8vU5HqSPQWfokHqaRLz1Pw
+AAAEAEVZJTuqanwlJTfVWJsX63gLv5W3ZoDXxQXLg+HHZnTd1dmvpz6lzT4hmySv4e+Cby
+9TkepI9BZ+iQeppEvPU/AAAAB3Rlc3QtY2EBAgMEBQY=
+-----END OPENSSH PRIVATE KEY-----
 
+# Public key, we will use it in Boot settings.
+$ cat test_ca.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN1dmvpz6lzT4hmySv4e+Cby9TkepI9BZ+iQeppEvPU/ test-ca</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Having a certification authority, let&#8217;s now sign existing <code>my_key.pub</code> public key and create a user certificate:</p>
+</div>
+<div class="listingblock">
+<div class="title">Creating a user certificate</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh-keygen -s test_ca -I 'my-test-cert' -z '0001' -n jump,root my_key.pub
+Signed user key my_key-cert.pub: id &quot;my-test-cert&quot; serial 1 for jump,root valid forever</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example we use CA private key file (<code>test_ca</code>) to sign user public key (<code>my_key.pub</code>) giving a resulting certificate file an identifier <code>my-test-cert</code> (mainly used for logging purposes on the server), serial number <code>0001</code> and allowed users <code>jump</code> and <code>root</code>. We need to allow <code>jump</code> user to authenticate on the jump host and <code>root</code> to authenticate on the virtual machine. The resulting certificate is saved to <code>my_key-cert.pub</code> file and looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">A typical user certificate</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat ~/my_key-cert.pub
+ssh-rsa-cert-v01@openssh.com AAAAHHNzaC1yc2EtY2VydC12MDFAb3BlbnNzaC5jb20AAAAgUmU82rtbl76TteeXo8oVJHhMR6m6//MG/KzG5O/3WGYAAAADAQABAAABgQCiL+Xa7eyclNsdiBw5JKrZYeZTD1bLXSV1mBcMKBHsdqG3G9YHSfTle6sgh5SYel8smiKckQrhJwju5pqC3AgPtCgUeyiTTOWSlIweMktt1gACq6i2OYLMG4q0bdgxw9fQKiNIKQO0UCWKpRMN75F8nRodXJR6osmEI4owR4btQ0Au3SXOlRIN5U1iIGeXJ3wH6KIFa0XswZOIxPGTx9dus73tcXynU+MqEKmnGOhyKVAjCHHkcHSsmPLm8OiSm+sVzqSRwyN9/YXMubUFswf9Y5+o2mzNNFXeUrw8IBCCZYz+8Eg1F1jtnp44lV4NK/L4n4DzwCOd8SpXQweh9KhhWtqWzbpYZqwU4JugmVOCxp8VZhTE6L0EY+zll7WSoNmZubqXepYYLVMPTDJbDoGDRdTSbnM6yZk8bozxdsgBdYgSubGyxNkfHWxTN+Dl/lbtZ2hY2hiqRqNljTX4gHQ+EKsHFF2KjgH6lHgxVXSGC2jzG1avfH2oX7BrTvRKh18AAAAAAAAAAQAAAAEAAAAMbXktdGVzdC1jZXJ0AAAAEAAAAARqdW1wAAAABHJvb3QAAAAAAAAAAP//////////AAAAAAAAAIIAAAAVcGVybWl0LVgxMS1mb3J3YXJkaW5nAAAAAAAAABdwZXJtaXQtYWdlbnQtZm9yd2FyZGluZwAAAAAAAAAWcGVybWl0LXBvcnQtZm9yd2FyZGluZwAAAAAAAAAKcGVybWl0LXB0eQAAAAAAAAAOcGVybWl0LXVzZXItcmMAAAAAAAAAAAAAADMAAAALc3NoLWVkMjU1MTkAAAAg3V2a+nPqXNPiGbJK/h74JvL1OR6kj0Fn6JB6mkS89T8AAABTAAAAC3NzaC1lZDI1NTE5AAAAQDoV3uwn0SBWrZcHtnzNuVVYPXe3orfxb3gpM6jhzszPaZ96G5Pu48lyQPN9tDiZE1PJJ7e/ovw07LQy4wqkSAo= some-comment-here</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now in order to work with created certificates in Boot - you need to add certification authority public key in two places:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>In jump host configuration.</strong> This is needed to allow SSH certificate owner to pass through jump host. A list of jump host trusted user certification authorities can be provided in <code>values.yaml</code> file when deploying Boot with Helm:</p>
+<div class="listingblock">
+<div class="title">Setting Boot jump host truster certification authorities in values.yaml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">boot</span>:
+  <span class="key">jumphost</span>:
+    <span class="key">trustedUserCAKeys</span>:
+      - <span class="string"><span class="content">ssh-ed25519 AAAAC3NzaC1....eppEvPU/ test-ca</span></span> <span class="comment"># See CA public key contents above</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How to do this is explained in detail in <a href="#jumphost">jump host documentation</a>.</p>
+</div>
+</li>
+<li>
+<p><strong>In every created virtual machine properties.</strong> This allows to access concrete virtual machine. When creating virtual machines with <a href="#virtual-machines-create-yaml">kubectl and YAML</a> respective definition looks like this:</p>
+<div class="listingblock">
+<div class="title">Adding authorized keys to new virtual machine YAML definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">boot.aerokube.com/v1</span></span>
+<span class="key">kind</span>: <span class="string"><span class="content">VirtualMachine</span></span>
+<span class="key">metadata</span>:
+  <span class="key">name</span>: <span class="string"><span class="content">my-vm</span></span>
+  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
+<span class="key">spec</span>:
+  <span class="key">os</span>: <span class="string"><span class="content">ubuntu</span></span>
+  <span class="key">trustedUserCAKeys</span>: <span class="comment"># A list of trusted certification authorities allowed to access this virtual machine</span>
+    - <span class="string"><span class="content">ssh-ed25519 AAAAC3NzaC1....eppEvPU/ test-ca</span></span> <span class="comment"># See CA public key contents above</span>
+    - <span class="string"><span class="content">ssh-ed25519 AAAAC3.... another-ca</span></span> <span class="comment"># Another CA public key contents</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you are creating virtual machines with <a href="#virtual-machines-create-plugin">kubectl plugin</a> - use `-user-ca-keys flag:</p>
+</div>
+<div class="listingblock">
+<div class="title">Adding trusted certification authorities to new virtual machine with kubectl plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -user-ca-keys /path/to/truster_user_ca.file -n boot</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="access-howto"><a class="anchor" href="#access-howto"></a>2.2.3. Accessing a Virtual Machine</h4>
+<div class="paragraph">
+<p>Having a configured Boot jump host and a virtual machine called <code>my-vm</code>, let&#8217;s now access it.</p>
+</div>
+<div class="listingblock">
+<div class="title">A typical virtual machine</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get vm -n boot
+NAME    FQDN                              IP           OS             CPU    MEM   STATUS    UPTIME
+my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   ubuntu:22.04   250m   1Gi   Running   10s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A full SSH command to access some host through jump host is as follows:</p>
+</div>
+<div class="listingblock">
+<div class="title">Accessing a virtual machine through jump host</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh -i /path/to/my_key -J jump@boot.example.com:2222 root@my-vm.vm.boot.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this command we use <code>-i</code> flag to provide a private key file. Then <code>-J</code> is needed to use a jump host and <code>jump@boot.example.com:2222</code> notation means to access jump host <code>boot.example.com</code> on port <code>2222</code> using <code>jump</code> user (these are Boot defaults). Finally, you provide your destination host <code>root@my-vm.vm.boot.svc.cluster.local</code>, i.e. you access host <code>my-vm.vm.boot.svc.cluster.local</code> inside Kubernetes with <code>root</code> user. This command will work for both authorized keys and user certificates. In case of user certificates SSH client will automatically try all certificates corresponding to private key file (e.g. <code>my_key-cert.pub</code>). You can certainly provide an exact certificate file as follows:</p>
+</div>
+<div class="listingblock">
+<div class="title">Providing an explicit SSH user certificate file</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh -o CertificateFile=/path/to/my_key-cert.pub -i /path/to/my_key -J jump@boot.example.com:2222 root@my-vm.vm.boot.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These commands look complicated, right? But most of these values except virtual machine host rarely change, so let&#8217;s move them to SSH client configuration file.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="access-host-cert"><a class="anchor" href="#access-host-cert"></a>2.2.4. Trusting Boot Host Certificate</h4>
 
 </div>
 </div>
@@ -3015,7 +3229,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-27 14:55:14 UTC
+Last updated 2023-08-31 09:07:04 UTC
 </div>
 </div>
 </body>
