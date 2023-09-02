@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-08-31</span>
+<span id="revdate">2023-09-02</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1610,7 +1610,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCiL+Xa7eyclNsdiBw5JKrZYeZTD1bLXSV1mBcMKBHs
 <p><span class="image"><img src="img/certificate-encryption.png" alt="certificate encryption"></span></p>
 </div>
 <div class="paragraph">
-<p>The main idea behind certificates is that instead of copying authorized keys of every user we have to trust all certificates signed by a certification authority that we trust. For example, we trust all SSH certificates created by our information security department. The only thing we need to provide in that case is <strong>certification authority certificate (CA certificate)</strong>. Like any other certificate this certificate contains a public key and metadata: certification authority name, expiration information and other stuff. When we copy CA certificate to the list of trusted CA certificates a host, this host is then able to read public key from CA certificate and use it to check digital signature on every certificate that was created by this authority. When digital signature on user certificate is valid, then user SSH connection to the host is accepted.</p>
+<p>The main idea behind certificates is that instead of copying authorized keys of every user we have to trust all certificates signed by a certification authority that we trust. For example, we trust all SSH certificates created by our information security department. The only thing we need to provide in that case is <strong>certification authority certificate (CA certificate)</strong>. Like any other certificate this certificate contains a public key and metadata: certification authority name, expiration information and other stuff. When we copy CA certificate to the list of trusted CA certificates a host, this host is then able to read public key from CA certificate and use it to check digital signature on every certificate that was created by this authority. When digital signature on <strong>user certificate</strong> is valid, then user SSH connection to the host is accepted.</p>
 </div>
 <div class="paragraph">
 <p>Similarly to user certificate, every host can have a <strong>host certificate</strong> and users are able to check that this certificate was issued by a trusted certification authority. For connection encryption purposes certificates work exactly the same as authorized keys. To encrypt and send some data to a user, host during SSH connection receives certificate from user, extracts public key from this certificate and uses it for encryption. Only user having private key corresponding to certificate public key can decrypt the data.</p>
@@ -1786,12 +1786,120 @@ my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   ubuntu:22.04   250m   1Gi
 </div>
 </div>
 <div class="paragraph">
-<p>These commands look complicated, right? But most of these values except virtual machine host rarely change, so let&#8217;s move them to SSH client configuration file.</p>
+<p>These commands look complicated, right? But most of these values except virtual machine host rarely change, so let&#8217;s move them to SSH client configuration file (usually resides in <code>~/.ssh/config</code>):</p>
+</div>
+<div class="listingblock">
+<div class="title">Moving connection options to SSH client configuration</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat ~/.ssh/config
+Host bootjump
+    IdentityFile /path/to/my_key # Private key location
+    HostName boot.example.com # Jump host name
+    Port 2222 # Just host port
+Host *.vm.boot.svc.cluster.local
+    IdentityFile /path/to/my_key # Private key location
+    ProxyJump jump@bootjump # Always use jump host declared above</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Having this configuration file, SSH connection command can be simplified to:</p>
+</div>
+<div class="listingblock">
+<div class="title">Simplified SSH connection command</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh root@my-vm.vm.boot.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But we can make this command even shorter. Virtual machine fully qualified domain name is <code>my-vm.vm.boot.svc.cluster.local</code>. In this name <code>boot</code> is namespace name and <code>svc.cluster.local</code> is standard Kubernetes DNS suffix. Kubernetes is able to automatically add this part of domain name, so you can add the following to SSH config:</p>
+</div>
+<div class="listingblock">
+<div class="title">How to support short domain name resolution</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat ~/.ssh/config
+Host *.vm
+    IdentityFile /path/to/my_key # Private key location
+    ProxyJump jump@bootjump</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With this configuration section the following command will work:</p>
+</div>
+<div class="listingblock">
+<div class="title">Even shorter SSH connection command</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh root@my-vm.vm</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="access-host-cert"><a class="anchor" href="#access-host-cert"></a>2.2.4. Trusting Boot Host Certificate</h4>
+<div class="paragraph">
+<p>In previous section we already mentioned that both user and host can have SSH certificates. User certificates are used by SSH server to identify users. Host certificates allow user to be sure that connection is made to the host that was expected to access. By default, when you try to access a virtual machine for the first time you will see the following:</p>
+</div>
+<div class="listingblock">
+<div class="title">Accessing a virtual machine for the first time</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ ssh root@my-vm.vm
+The authenticity of host '[boot.example.com]:2222 ([XXX.XXX.XXX.XXX]:2222)' can't be established.
+ED25519 key fingerprint is SHA256:F/qgcVr/35EPaGtxX4Y1YHR5H8oD28sUKs0IRFiRWfI.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[boot.aerokube.local]:2222' (ED25519) to the list of known hosts.
+The authenticity of host 'my-vm.vm (&lt;no hostip for proxy command&gt;)' can't be established.
+ED25519 key fingerprint is SHA256:mGSVISH1obExpV3YceqKuzVrIzbnv7vwiUjc9CccS1k.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'my-vm.vm' (ED25519) to the list of known hosts.
+my-vm:~#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To stop seeing these warnings we need to add Boot virtual machines to the list of trusted hosts. During the installation Boot generates a certification authority that is used to create host certificates for all virtual machines. The pair of keys for this certification authority is stored in Kubernetes secret <code>&lt;boot-namespace&gt;-vm-ssh-host-ca-keys</code>, e.g. <code>boot-vm-ssh-host-ca-keys</code> when Boot is running in default <code>boot</code> namespace:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Extract public key for certification authority from secret:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get secret boot-vm-ssh-host-ca-keys -o jsonpath='{.data.ca_key\.pub}' -n boot | base64 -D
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHZc6j06RCf+8/J1IuS8SY1/hasLHlik6XRnO87+Zhu user@boot-generate-ssh-keys-4j2dw</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add this key to the list of SSH known hosts:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat ~/.ssh/known_hosts
+# For fully qualified domain name
+@cert-authority *.vm.boot.svc.cluster.local ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHZc6j06RCf+8/J1IuS8SY1/hasLHlik6XRnO87+Zhu user@boot-generate-ssh-keys-4j2dw
 
+# For short domain name
+@cert-authority *.vm ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHZc6j06RCf+8/J1IuS8SY1/hasLHlik6XRnO87+Zhu user@boot-generate-ssh-keys-4j2dw</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now if you try to execute the same command - SSH will never ask you to confirm authenticity of virtual machines. You only need to confirm jump host (<code>boot.example.com</code>) authenticity once.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>We intentionally do not automatically configure host certificate for the jump host. Default behavior is to generate a regular set of host keys that every Boot user should confirm once. This is because jump host is globally protecting all virtual machines from unauthorized access and decisions about using host certificates should be explicitly made by cluster administrator. Detailed documentation about configuring jump host security settings is provided in <a href="#jumphost">jump host documentation</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
 </div>
 </div>
 </div>
@@ -3229,7 +3337,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-08-31 09:07:04 UTC
+Last updated 2023-09-02 05:46:27 UTC
 </div>
 </div>
 </body>
