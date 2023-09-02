@@ -1237,7 +1237,64 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
 </div>
 <div class="sect4">
 <h5 id="virtual-machines-create-plugin"><a class="anchor" href="#virtual-machines-create-plugin"></a>Option 2. Using Boot plugin for kubectl</h5>
-
+<div class="paragraph">
+<p>The second possible way of creating Boot virtual machines is using Boot <a href="https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/">plugin</a> for <a href="https://kubernetes.io/docs/reference/kubectl/">kubectl</a>.</p>
+</div>
+<div class="paragraph">
+<p>The simplest way of installing Boot plugin is using <a href="https://krew.sigs.k8s.io/">Krew</a> package manager:</p>
+</div>
+<div class="listingblock">
+<div class="title">Installing Boot plugin with Krew</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl krew index add aerokube https://github.com/aerokube/krew-index.git
+$ kubectl krew install aerokube/vm</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another possibility is to download plugin distribution archive and unpack in to a directory in <a href="https://en.wikipedia.org/wiki/PATH_(variable)">PATH</a>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Installing Boot plugin manually on Mac</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-vm_darwin_amd64.zip # x86 version
+$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-vm_darwin_arm64.zip # ARM version
+$ unzip -d /usr/local/bin kubectl-vm.zip</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Installing Boot plugin manually on Linux</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-linux_amd64.zip
+$ unzip -d /usr/local/bin kubectl-vm.zip</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Installing Boot plugin manually on Windows</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-windows_amd64.zip
+$ mkdir %USERPROFILE%\bin
+$ Expand-Archive -Force kubectl-vm.zip %USERPROFILE%\bin # Add %USERPROFILE%\bin to PATH</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To check that plugin was installed successfully:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To create a virtual machine with plugin:</p>
+</div>
+<div class="listingblock">
+<div class="title">Creating a virtual machine with plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ echo &quot;ssh-rsa AAAAB3N... some-key&quot; &gt;&gt; authorized_keys # Create a list of SSH authorized keys
+$ kubectl vm create -os ubuntu -auth-keys authorized_keys -n boot # Using latest operating system version
+$ kubectl vm create -os ubuntu:22.04 -auth-keys authorized_keys -n boot # Using exact operating system version</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -1246,9 +1303,18 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
 <p>To delete a virtual machine use standard <code>kubectl</code> command:</p>
 </div>
 <div class="listingblock">
-<div class="title">Delete a virtual machine</div>
+<div class="title">Delete a virtual machine with kubectl</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl delete vm my-vm -n boot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To delete a virtual machine with <code>kubectl</code> plugin:</p>
+</div>
+<div class="listingblock">
+<div class="title">Delete a virtual machine with kubectl plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm delete my-vm -n boot</code></pre>
 </div>
 </div>
 </div>
@@ -3337,7 +3403,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-02 05:46:27 UTC
+Last updated 2023-09-02 18:25:44 UTC
 </div>
 </div>
 </body>
