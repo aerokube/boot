@@ -6,7 +6,7 @@ Boot is a commercial closed-source solution to launch lightweight test and devel
 ## Pricing Model
 
 * The only limitation that determines final Boot price is the **total number of virtual machines** being run in parallel.
-* You can run up to **4 (four)** parallel pods for free. Everything on top of free limit is paid as a subscription.
+* You can run virtual machines up to **1 (one)** CPU total for free. Everything on top of free limit is paid as a subscription.
 * **Detailed pricing** information is available in respective documentation [section](https://aerokube.com/boot/latest/#_pricing).
 * You can obtain **a free evaluation license key** on our [web-site](https://aerokube.com/boot/).
 
