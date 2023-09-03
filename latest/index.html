@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-02</span>
+<span id="revdate">2023-09-03</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1271,9 +1271,9 @@ $ unzip -d /usr/local/bin kubectl-vm.zip</code></pre>
 <div class="listingblock">
 <div class="title">Installing Boot plugin manually on Windows</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-windows_amd64.zip
-$ mkdir %USERPROFILE%\bin
-$ Expand-Archive -Force kubectl-vm.zip %USERPROFILE%\bin # Add %USERPROFILE%\bin to PATH</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">&gt; curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-windows_amd64.zip
+&gt; mkdir %USERPROFILE%\bin
+&gt; Expand-Archive -Force kubectl-vm.zip %USERPROFILE%\bin # Add %USERPROFILE%\bin to PATH</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2767,11 +2767,18 @@ $ oc secrets link boot my-registry.example.com --for=pull -n boot</pre>
 </div>
 </li>
 <li>
-<p>Update <a href="#private-container-registry">configuration</a> to use new virtual machine images repository:</p>
+<p>Update <a href="#operating-systems">operating system definition</a> in Helm chart:</p>
 <div class="listingblock">
-<div class="title">Configuration with Private Container Repository</div>
+<div class="title">Operating system definition in Helm chart</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="yaml"><span class="comment"># TODO: add config!</span></code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  namespaces:
+  os:
+    ubuntu:
+      repository: my-registry.example.com/boot/ubuntu
+      versions:
+      - &quot;22.04&quot;</code></pre>
 </div>
 </div>
 </li>
@@ -2781,12 +2788,32 @@ $ oc secrets link boot my-registry.example.com --for=pull -n boot</pre>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">aerokube/boot:1.0.0 =&gt; my-registry.example.com/aerokube/boot:1.0.0
 aerokube/jumphost:1.0.0 =&gt; my-registry.example.com/aerokube/jumphost:1.0.0
+aerokube/keygen:1.0.0 =&gt; my-registry.example.com/aerokube/keygen:1.0.0
 aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>Use new Boot images from the previous step in Helm chart to start Boot and Boot UI.</p>
+<p>Use new Boot images from the previous step in Helm chart to start Boot:</p>
+<div class="listingblock">
+<div class="title">Custom registry for Boot images in Helm chart</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">  deployment:
+    containers:
+      boot:
+        image:
+          repository: my-registry.example.com/aerokube/boot
+      jumphost:
+        image:
+          repository: my-registry.example.com/aerokube/jumphost
+      keygen:
+        image:
+          repository: my-registry.example.com/aerokube/keygen
+      reloader:
+        image:
+          repository: my-registry.example.com/aerokube/reloader</code></pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
@@ -3403,7 +3430,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-02 18:25:44 UTC
+Last updated 2023-09-03 10:41:46 UTC
 </div>
 </div>
 </body>
