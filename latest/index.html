@@ -595,7 +595,15 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#operating-systems-tolerations">3.1.6. Tolerations</a></li>
 </ul>
 </li>
-<li><a href="#jumphost">3.2. Jump Host Configuration</a></li>
+<li><a href="#jumphost">3.2. Jump Host Configuration</a>
+<ul class="sectlevel3">
+<li><a href="#jumphost-user">3.2.1. User</a></li>
+<li><a href="#jumphost-port">3.2.2. Network Port</a></li>
+<li><a href="#jumphost-keys-certificates">3.2.3. Allowed User Keys and Certificates</a></li>
+<li><a href="#jumphost-host-certificate">3.2.4. Custom Host Certificate</a></li>
+<li><a href="#jumphost-computing-resources">3.2.5. Computing Resources</a></li>
+</ul>
+</li>
 <li><a href="#license">3.3. License Key</a>
 <ul class="sectlevel3">
 <li><a href="#license-list">3.3.1. Listing License Keys</a></li>
@@ -2402,7 +2410,100 @@ Boot is using exactly the same tolerations configuration YAML format as <a href=
 </div>
 <div class="sect2">
 <h3 id="jumphost"><a class="anchor" href="#jumphost"></a>3.2. Jump Host Configuration</h3>
-
+<div class="paragraph">
+<p>Jump host is the main entrypoint to Boot virtual machines. Jump host is reconfigured by updating <code>values.yaml</code> file and reapplying Helm chart.</p>
+</div>
+<div class="sect3">
+<h4 id="jumphost-user"><a class="anchor" href="#jumphost-user"></a>3.2.1. User</h4>
+<div class="paragraph">
+<p>Jump host processes are always run by an unprivileged user (default name is <code>jump</code>). This gives additional security. Boot users can only access jump host by SSH using the name of this user. To set it:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating jump host user settings</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  jumphost:
+    user:
+      name: my-user # Custom login user
+      uid: 10000000 # User uid (you may need to change it in Openshift)
+      gid: 10000000 # User gid (you may need to change it in Openshift)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="jumphost-port"><a class="anchor" href="#jumphost-port"></a>3.2.2. Network Port</h4>
+<div class="paragraph">
+<p>To change network port being used to access jump host by SSH:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating jump host user settings</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  jumphost:
+    port: 22222 # Setting custom network port</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="jumphost-keys-certificates"><a class="anchor" href="#jumphost-keys-certificates"></a>3.2.3. Allowed User Keys and Certificates</h4>
+<div class="paragraph">
+<p>It is important to configure users allowed to access Boot cluster by SSH at all. This is done by adding authorized public SSH keys and trusted user CA certificates to jump host settings:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating jump host user authorized keys and trusted CA certificates</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  jumphost:
+    authorizedKeys: # User authorized keys
+      - ssh-rsa AAAAB3N... some-key
+      - ssh-rsa AAAAB3N... another-key
+    trustedUserCAKeys: # A list of trusted user certification authorities
+      - ssh-ed25519 AAAAC3N... certification-authority-1
+      - ssh-ed25519 AAAAC3N... certification-authority-2</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="jumphost-host-certificate"><a class="anchor" href="#jumphost-host-certificate"></a>3.2.4. Custom Host Certificate</h4>
+<div class="paragraph">
+<p>By default, Boot automatically generates standard SSH host keys for jump host SSH server. Users will have to trust these keys during the first connection. If you prefer to provide an SSH certificate instead:</p>
+</div>
+<div class="listingblock">
+<div class="title">Setting an SSH certificate for jump host</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  jumphost:
+    hostCertificate: &quot;ssh-rsa-cert-v01@openssh.com AAAAHHNzaC1yc2Et...xUpYDJQk= some-comment&quot;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="jumphost-computing-resources"><a class="anchor" href="#jumphost-computing-resources"></a>3.2.5. Computing Resources</h4>
+<div class="paragraph">
+<p>If for some reason default jump host computing resources are not sufficient:</p>
+</div>
+<div class="listingblock">
+<div class="title">Updating jump host computing resources</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  deployment:
+    containers:
+      jumphost:
+        resources: # Custom jump host computing resources
+          limits:
+            cpu: 2000m
+            memory: 1Gi
+          requests:
+            cpu: 200m
+            memory: 1Gi</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="license"><a class="anchor" href="#license"></a>3.3. License Key</h3>
@@ -2798,7 +2899,9 @@ aerokube/reloader:1.0.0 =&gt; my-registry.example.com/aerokube/reloader:1.0.0</c
 <div class="listingblock">
 <div class="title">Custom registry for Boot images in Helm chart</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">  deployment:
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  deployment:
     containers:
       boot:
         image:
@@ -3430,7 +3533,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-03 10:41:46 UTC
+Last updated 2023-09-03 11:54:47 UTC
 </div>
 </div>
 </body>
