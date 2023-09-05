@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-03</span>
+<span id="revdate">2023-09-05</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -682,9 +682,6 @@ ssh-rsa AAAAB3N... some-comment</code></pre>
 </div>
 </li>
 <li>
-<p>If you are running Kubernetes cluster on virtual machines, we usually recommend having bigger VMs instead of smaller ones. This allows to avoid available CPUs and memory fragmentation issues. For example having 24 CPU cores overall it is better to start 3 x 8 CPU core VMs instead of 12 x 2 CPU core.</p>
-</li>
-<li>
 <p>If you are starting Boot in Kubernetes cluster deployed on workstation with <a href="https://github.com/kubernetes/minikube/">minikube</a> tool - see <a href="#install-minikube">Option 3: you have Minikube</a>.</p>
 </li>
 </ol>
@@ -828,25 +825,25 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Every virtual machine by default requires 1 CPU and 2 GB of memory. We recommend having at least 4 CPUs and 8GB of memory in your Minikube cluster. When having less CPUs browser pods may not start because of insufficient computing resources. We do not recommend using Docker driver for Minikube.</p>
+<p>We do not recommend using Docker driver for Minikube.</p>
 </div>
 <div class="listingblock">
 <div class="title">Minikube startup under Linux</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --cpus=4 --memory=8G --disk-size=20G --driver kvm2</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver kvm2</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Minikube startup under MacOS</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --cpus=4 --memory=8G --disk-size=20G --driver=hyperkit</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver=hyperkit</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Minikube startup under Windows</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V # Enable Hyper-V
-$ minikube start --cpus=4 --memory=8G --disk-size=20G --driver=hyperv</code></pre>
+$ minikube start --driver=hyperv</code></pre>
 </div>
 </div>
 </td>
@@ -3533,7 +3530,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-03 11:54:47 UTC
+Last updated 2023-09-05 11:04:15 UTC
 </div>
 </div>
 </body>
