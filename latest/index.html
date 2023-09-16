@@ -548,15 +548,10 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <ul class="sectlevel3">
 <li><a href="#boot-components">1.2.1. Boot Components</a></li>
 <li><a href="#boot-pod-contents">1.2.2. Boot Pod Contents</a></li>
-<li><a href="#boot-operation-modes">1.2.3. Boot Operation Modes</a></li>
+<li><a href="#boot-multiple-namespaces-support">1.2.3. Multiple Namespaces Support</a></li>
 </ul>
 </li>
-<li><a href="#permissions">1.3. Required Permissions</a>
-<ul class="sectlevel3">
-<li><a href="#permissions-single-namespace">1.3.1. Single Namespace Mode</a></li>
-<li><a href="#permissions-multiple-namespaces">1.3.2. Multiple Namespaces Mode</a></li>
-</ul>
-</li>
+<li><a href="#permissions">1.3. Required Permissions</a></li>
 </ul>
 </li>
 <li><a href="#main-features">2. Main Features</a>
@@ -599,8 +594,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#jumphost-user">3.2.1. User</a></li>
 <li><a href="#jumphost-port">3.2.2. Network Port</a></li>
 <li><a href="#jumphost-keys-certificates">3.2.3. Allowed User Keys and Certificates</a></li>
-<li><a href="#jumphost-host-certificate">3.2.4. Custom Host Certificate</a></li>
-<li><a href="#jumphost-computing-resources">3.2.5. Computing Resources</a></li>
+<li><a href="#jumphost-computing-resources">3.2.4. Computing Resources</a></li>
 </ul>
 </li>
 <li><a href="#license">3.3. License Key</a>
@@ -928,73 +922,26 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </table>
 </div>
 <div class="sect3">
-<h4 id="boot-operation-modes"><a class="anchor" href="#boot-operation-modes"></a>1.2.3. Boot Operation Modes</h4>
+<h4 id="boot-multiple-namespaces-support"><a class="anchor" href="#boot-multiple-namespaces-support"></a>1.2.3. Multiple Namespaces Support</h4>
 <div class="paragraph">
-<p>Boot has two different operation modes: <strong>single namespace mode</strong> and <strong>multiple namespaces mode</strong>.</p>
+<p>Boot can launch virtual machines in any number of Kubernetes namespaces. By default, Boot itself and all launched virtual machines are running in the same Kubernetes namespace. This is suitable if only one team is using Boot or you don&#8217;t need to limit virtual machines consumption for different Boot users.</p>
 </div>
 <div class="paragraph">
-<div class="title">Single Namespace Mode</div>
-<p><span class="image"><img src="img/single-namespace-mode.png" alt="single-namespace-mode"></span></p>
-</div>
-<div class="paragraph">
-<p>In single namespace mode Boot itself and all launched virtual machines are running in the one Kubernetes namespace. This is suitable if only one team is using Boot or you don&#8217;t need to limit virtual machines consumption for different Boot users. By default, Boot is launched in this mode.</p>
-</div>
-<div class="paragraph">
-<div class="title">Multiple Namespaces Mode</div>
+<div class="title">Boot with Multiple Namespaces Configured</div>
 <p><span class="image"><img src="img/multiple-namespaces-mode.png" alt="multiple-namespaces-mode"></span></p>
 </div>
 <div class="paragraph">
-<p>In multiple namespaces mode Boot is running in one namespace and virtual machines are launched in separate namespaces. The total number of such namespaces is unlimited. This mode is mainly needed when you want to control computing resources, virtual machine operating system versions or network access rules (<a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">network policies</a>) available for every team. How to enable this mode is described <a href="#multiple-namespaces">here</a>.</p>
+<p>It is easy to configure Boot to run in one namespace and to launch virtual machines in separate namespaces. Multiple namespaces are mainly needed when you want to control computing resources, virtual machine operating system versions or network access rules (<a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">network policies</a>) available for every team. For example, user 1 virtual machines will be running in team 1 namespace and user 2 virtual machines will be running in team 2 namespace. How to configure multiple namespaces is described <a href="#multiple-namespaces">here</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="permissions"><a class="anchor" href="#permissions"></a>1.3. Required Permissions</h3>
 <div class="paragraph">
-<p>Boot requires a limited set of permissions and should work with default Kubernetes settings. By default, Boot runs virtual machines in the same <code>boot</code> namespace where it runs (<strong>single namespace mode</strong>). In addition to that Boot supports multiple Kubernetes <a href="https://kubernetes.io/docs/tasks/administer-cluster/namespaces-walkthrough/">namespaces</a>. This allows you to have one Boot instance running in <code>boot</code> namespace and an arbitrary number of namespaces for running virtual machines of different users (<strong>multiple namespaces mode</strong>). Multiple namespaces allow you to easily control the maximum number of virtual machines allowed to run by every team.</p>
-</div>
-<div class="sect3">
-<h4 id="permissions-single-namespace"><a class="anchor" href="#permissions-single-namespace"></a>1.3.1. Single Namespace Mode</h4>
-<div class="paragraph">
-<p>The following table summarizes what needs to be accessible for Boot in single namespace mode:</p>
+<p>Boot requires a limited set of permissions and should work with default Kubernetes settings. Boot can launch virtual machines in any number of Kubernetes namespaces. All required roles are automatically created with Helm chart. The following table shows Boot permissions in the namespace where it is running:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Required Boot Permissions In Single Namespace Mode</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Permission</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Purpose</strong></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to manipulate pods backing virtual machines</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">config maps</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to pass various files like SSH keys and certificates to virtual machines</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">deployments</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/">replica sets</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used in license functionality</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store Boot configuration and virtual machines related information. Boot licenses (<code>licenses.boot.aerokube.com</code>) are cluster-wide, so a <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole">ClusterRole</a> is needed for this resource.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="permissions-multiple-namespaces"><a class="anchor" href="#permissions-multiple-namespaces"></a>1.3.2. Multiple Namespaces Mode</h4>
-<div class="paragraph">
-<p>When running browsers in multiple namespaces required permissions differ. The following table shows Boot permissions in the namespace where it is running:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Required Permissions for the Namespace where Boot runs</caption>
+<caption class="title">Table 2. Required Permissions for the Namespace where Boot runs</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1026,7 +973,7 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 <p>For every user namespace Boot needs the following permissions:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Required Boot Permissions For User Namespace</caption>
+<caption class="title">Table 3. Required Boot Permissions For User Namespace</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1050,7 +997,6 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </tr>
 </tbody>
 </table>
-</div>
 </div>
 </div>
 </div>
@@ -1864,20 +1810,6 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHZc6j06RCf+8/J1IuS8SY1/hasLHlik6XRnO87+Zhu
 </li>
 <li>
 <p>Now if you try to execute the same command - SSH will never ask you to confirm authenticity of virtual machines. You only need to confirm jump host (<code>boot.example.com</code>) authenticity once.</p>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>We intentionally do not automatically configure host certificate for the jump host. Default behavior is to generate a regular set of host keys that every Boot user should confirm once. This is because jump host is globally protecting all virtual machines from unauthorized access and decisions about using host certificates should be explicitly made by cluster administrator. Detailed documentation about configuring jump host security settings is provided in <a href="#jumphost">jump host documentation</a>.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
 </li>
 </ol>
 </div>
@@ -2374,22 +2306,7 @@ boot:
 </div>
 </div>
 <div class="sect3">
-<h4 id="jumphost-host-certificate"><a class="anchor" href="#jumphost-host-certificate"></a>3.2.4. Custom Host Certificate</h4>
-<div class="paragraph">
-<p>By default, Boot automatically generates standard SSH host keys for jump host SSH server. Users will have to trust these keys during the first connection. If you prefer to provide an SSH certificate instead:</p>
-</div>
-<div class="listingblock">
-<div class="title">Setting an SSH certificate for jump host</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
-boot:
-  jumphost:
-    hostCertificate: &quot;ssh-rsa-cert-v01@openssh.com AAAAHHNzaC1yc2Et...xUpYDJQk= some-comment&quot;</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="jumphost-computing-resources"><a class="anchor" href="#jumphost-computing-resources"></a>3.2.5. Computing Resources</h4>
+<h4 id="jumphost-computing-resources"><a class="anchor" href="#jumphost-computing-resources"></a>3.2.4. Computing Resources</h4>
 <div class="paragraph">
 <p>If for some reason default jump host computing resources are not sufficient:</p>
 </div>
@@ -2525,7 +2442,6 @@ metadata:
   # Other Kubernetes metadata
 spec:
   data: YkV0dmNsaGxTak51Y2....      <i class="conum" data-value="2"></i><b>(2)</b>
-  namespace: boot                   <i class="conum" data-value="3"></i><b>(3)</b>
 status:
   # Other keys and values</code></pre>
 </div>
@@ -2534,15 +2450,11 @@ status:
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>License key name</td>
+<td>License key name, should correspond to namespace name where this license key should be used</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>License key contents</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Namespace where this license key should be used</td>
 </tr>
 </table>
 </div>
@@ -2573,7 +2485,7 @@ status:
 <p><a href="#install">Deploy</a> two independent Boot clusters to namespace <code>ns1</code> and <code>ns2</code></p>
 </li>
 <li>
-<p>Create two license objects with <code>namespace</code> field set to <code>ns1</code> and <code>ns2</code> and save them to file (e.g. <code>license-keys.yaml</code>):</p>
+<p>Create two license objects with <code>name</code> field set to <code>ns1</code> and <code>ns2</code> and save them to file (e.g. <code>license-keys.yaml</code>):</p>
 <div class="listingblock">
 <div class="title">License keys to be created</div>
 <div class="content">
@@ -2581,18 +2493,16 @@ status:
 apiVersion: boot.aerokube.com/v1
 kind: License
 metadata:
-  name: license-key-ns1
+  name: ns1
 spec:
   data: &lt;license-key-1&gt;
-  namespace: ns1
 ---
 apiVersion: boot.aerokube.com/v1
 kind: License
 metadata:
-  name: license-key-ns2
+  name: ns2
 spec:
-  data: &lt;license-key-2&gt;
-  namespace: ns2</code></pre>
+  data: &lt;license-key-2&gt;</code></pre>
 </div>
 </div>
 </li>
@@ -2652,7 +2562,7 @@ license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s
 </div>
 </div>
 <div class="paragraph">
-<p>When you delete the last license key with <code>namespace</code> field set to some Boot namespace, Boot will automatically fall back to the free license key with 1 CPU included.</p>
+<p>When you delete the license key with <code>name</code> field set to some Boot namespace, Boot will automatically fall back to the free license key with 1 CPU included.</p>
 </div>
 </div>
 <div class="sect3">
@@ -3349,7 +3259,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <li>
 <p>For simplicity, we calculated monthly prices for some frequent cases:</p>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Boot License Pricing</caption>
+<caption class="title">Table 4. Boot License Pricing</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -3440,7 +3350,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-16 13:23:14 UTC
+Last updated 2023-09-16 14:52:26 UTC
 </div>
 </div>
 </body>
