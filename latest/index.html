@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-07</span>
+<span id="revdate">2023-09-16</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -542,7 +542,6 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#install">1.1. Quick Start Guide</a>
 <ul class="sectlevel3">
 <li><a href="#install-kubernetes">1.1.1. Installing to Kubernetes</a></li>
-<li><a href="#install-openshift">1.1.2. Installing to Openshift</a></li>
 </ul>
 </li>
 <li><a href="#architecture">1.2. Architecture</a>
@@ -667,7 +666,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Running <a href="https://kubernetes.io/">Kubernetes</a> cluster</p>
+<p>Running <a href="https://kubernetes.io/">Kubernetes</a> cluster.</p>
 </li>
 <li>
 <p><code>kubectl</code> client installed and pointing to the cluster</p>
@@ -682,13 +681,32 @@ ssh-rsa AAAAB3N... some-comment</code></pre>
 </div>
 </li>
 <li>
-<p>If you are starting Boot in Kubernetes cluster deployed on workstation with <a href="https://github.com/kubernetes/minikube/">minikube</a> tool - see <a href="#install-minikube">Option 3: you have Minikube</a>.</p>
+<p>If you are starting Boot in Kubernetes cluster deployed on workstation with <a href="https://github.com/kubernetes/minikube/">minikube</a> tool - use the following commands to start Kubernetes:</p>
+<div class="listingblock">
+<div class="title">Minikube startup under Linux</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver kvm2</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Minikube startup under MacOS</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver=hyperkit</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Minikube startup under Windows</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V # Enable Hyper-V
+$ minikube start --driver=hyperv</code></pre>
+</div>
+</div>
 </li>
 </ol>
 </div>
 </div>
 <div class="sect4">
-<h5 id="install-helm"><a class="anchor" href="#install-helm"></a>Option 1: use Helm chart</h5>
+<h5 id="install-helm"><a class="anchor" href="#install-helm"></a>Install Boot with Helm</h5>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -762,6 +780,40 @@ $ helm repo update</code></pre>
 </div>
 </li>
 <li>
+<p>Detect Boot load balancer IP address. Usually this address can be obtained from Boot service:</p>
+<div class="listingblock">
+<div class="title">Get Boot service IP address</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get svc boot -n boot
+NAME   TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)    AGE
+boot   LoadBalancer   10.107.117.163   192.168.64.5   2222/TCP   15d</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>IP address is indicated in <code>EXTERNAL-IP</code> column. On Minikube you need to explicitly add IP address to Boot service with <code>minikube ip</code> command output:</p>
+</div>
+<div class="listingblock">
+<div class="title">Patch Boot service with minikube IP address</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl patch svc boot -n boot --patch &quot;{\&quot;spec\&quot;:{\&quot;externalIPs\&quot;:[\&quot;$(minikube ip)\&quot;]}}&quot;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On Windows - you may need to insert <code>minikube ip</code> output manually, because <code>$()</code> expression expansion may not work.</p>
+</div>
+</li>
+<li>
+<p>Make sure there is a domain name pointing to IP address. On Minikube - simply add an entry to <code>hosts</code> file:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ sudo echo &quot;$(minikube ip) boot.aerokube.local&quot; &gt;&gt; /etc/hosts</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On Windows you may need to update hosts file manually.</p>
+</div>
+</li>
+<li>
 <p>Configure your SSH client to use Boot. To do that add the following lines to <code>~/.ssh/config</code> file:</p>
 <div class="listingblock">
 <div class="content">
@@ -815,148 +867,6 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </ol>
 </div>
 </div>
-<div class="sect4">
-<h5 id="install-minikube"><a class="anchor" href="#install-minikube"></a>Option 2: you have Minikube</h5>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>We do not recommend using Docker driver for Minikube.</p>
-</div>
-<div class="listingblock">
-<div class="title">Minikube startup under Linux</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver kvm2</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Minikube startup under MacOS</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ minikube start --driver=hyperkit</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Minikube startup under Windows</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V # Enable Hyper-V
-$ minikube start --driver=hyperv</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Install Boot with Helm as shown <a href="#install-helm">above</a>.</p>
-</li>
-<li>
-<p>Configure access to Boot:</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p><strong>Option 1.</strong> Use <code>minikube ip</code> to patch Boot service.</p>
-<div class="olist lowerroman">
-<ol class="lowerroman" type="i">
-<li>
-<p>Patch service with <code>minikube ip</code> command output:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl patch svc boot -n boot --patch &quot;{\&quot;spec\&quot;:{\&quot;externalIPs\&quot;:[\&quot;$(minikube ip)\&quot;]}}&quot;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>On Windows - you may need to insert <code>minikube ip</code> output manually, because <code>$()</code> expression expansion may not work.</p>
-</div>
-</li>
-<li>
-<p>Add <code>boot.aerokube.local</code> to <code>/etc/hosts</code>:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ sudo echo &quot;$(minikube ip) boot.aerokube.local&quot; &gt;&gt; /etc/hosts</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>On Windows you may need to update hosts file manually.</p>
-</div>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p><strong>Option 2.</strong> Use minikube tunnel. This works only when minikube is using Docker driver.</p>
-<div class="olist lowerroman">
-<ol class="lowerroman" type="i">
-<li>
-<p>Add <code>boot.aerokube.local</code> to <code>/etc/hosts</code>:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ sudo echo '127.0.0.1 boot.aerokube.local' &gt;&gt; /etc/hosts</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Start Minikube tunnel in a separate tab. Enter your password when prompted:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ minikube tunnel</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="install-openshift"><a class="anchor" href="#install-openshift"></a>1.1.2. Installing to Openshift</h4>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Prerequisites:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Running <a href="https://www.openshift.com/">Openshift</a> 4.x cluster</p>
-</li>
-<li>
-<p><code>oc</code> client installed and pointing to the cluster. Installation was tested when <code>oc</code> has administrator permissions.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Create a project (the same as Kubernetes namespace) for Boot:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ oc new-project boot</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In the next steps we assume that Openshift project for Boot is called <code>boot</code>.</p>
-</div>
-</li>
-<li>
-<p>Add Aerokube <a href="https://github.com/aerokube/charts">charts</a> repository:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ helm repo add aerokube https://charts.aerokube.com/
-$ helm repo update</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -1007,12 +917,12 @@ $ helm repo update</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Starts and stops virtual machines</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">jump-proxy</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Controls SSH access to running virtual machines</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jumphost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Regular SSH server with secure configuration working as SSH jump host</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">reloader</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Makes sure that SSH connections to virtual machines are only interrupted after expected period of time when you update Boot components</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Makes sure that SSH connections to virtual machines are gracefully interrupted after expected period of time when you update Boot components</p></td>
 </tr>
 </tbody>
 </table>
@@ -1190,8 +1100,8 @@ $ helm repo update</code></pre>
 <div class="title">Listing virtual machines</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get vm -n boot
-NAME    FQDN                              IP           OS            CPU      MEM     STATUS    UPTIME
-my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   alpine:3.18   1/512m   512Mi   Running   4s</code></pre>
+NAME    FQDN                              IP           OS            CPU         MEM     STATUS    UPTIME
+my-vm   my-vm.vm.boot.svc.cluster.local   172.17.0.4   alpine:3.18   250m/128m   512Mi   Running   4s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2262,10 +2172,10 @@ status:
       <span class="key">repository</span>: <span class="string"><span class="content">quay.io/boot/ubuntu</span></span>
       <span class="key">resources</span>: <span class="comment"># Computing resources available to every virtual machine</span>
         <span class="key">limits</span>:
-          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">0.5</span><span class="delimiter">&quot;</span></span>
+          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1.0</span><span class="delimiter">&quot;</span></span>
           <span class="key">memory</span>: <span class="string"><span class="content">1Gi</span></span>
         <span class="key">requests</span>:
-          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1.0</span><span class="delimiter">&quot;</span></span>
+          <span class="key">cpu</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">0.5</span><span class="delimiter">&quot;</span></span>
           <span class="key">memory</span>: <span class="string"><span class="content">1Gi</span></span>
   <span class="comment"># Other fields go here</span></code></pre>
 </div>
@@ -3530,7 +3440,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-07 12:29:09 UTC
+Last updated 2023-09-16 13:23:14 UTC
 </div>
 </div>
 </body>
