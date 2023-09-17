@@ -609,12 +609,6 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#private-container-registry">3.4. Using Private Container Registry</a></li>
 <li><a href="#multiple-namespaces">3.5. Using Multiple Namespaces</a></li>
 <li><a href="#log-files">3.6. Log Files</a></li>
-<li><a href="#cli-flags">3.7. CLI Flags</a>
-<ul class="sectlevel3">
-<li><a href="#cli-flags-boot">3.7.1. Boot Container Flags</a></li>
-<li><a href="#cli-flags-reloader">3.7.2. Reloader Container Flags</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a href="#license-agreement">4. License Agreement</a></li>
@@ -2726,42 +2720,6 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <p>Here <code>virtual-machine-01</code> is the name of the virtual machine.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="cli-flags"><a class="anchor" href="#cli-flags"></a>3.7. CLI Flags</h3>
-<div class="paragraph">
-<p>These command-line flags should be <a href="https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#define-a-command-and-arguments-when-you-create-a-pod">specified</a> in Helm chart parameters when starting the cluster.</p>
-</div>
-<div class="sect3">
-<h4 id="cli-flags-boot"><a class="anchor" href="#cli-flags-boot"></a>3.7.1. Boot Container Flags</h4>
-<div class="paragraph">
-<p>The following flags are supported:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>-ca-secret-name string
-    secret name with ssh host CA keys (default "boot-vm-ssh-host-ca-keys")
--sshd-startup-time duration
-    sshd startup time (default 30s)</pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="cli-flags-reloader"><a class="anchor" href="#cli-flags-reloader"></a>3.7.2. Reloader Container Flags</h4>
-<div class="paragraph">
-<p>The following flags are supported:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>-listen string
-    listen (default ":2222")
--lock string
-    proxy port (default "/tmp/.boot-lock")
--port string
-     (default "2223")</pre>
-</div>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -3295,7 +3253,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-17 16:19:33 UTC
+Last updated 2023-09-17 16:23:26 UTC
 </div>
 </div>
 </body>
