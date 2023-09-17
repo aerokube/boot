@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-16</span>
+<span id="revdate">2023-09-17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -604,11 +604,10 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="#license-multiple">3.3.3. Multiple License Keys</a></li>
 <li><a href="#license-delete">3.3.4. Deleting a License Key</a></li>
 <li><a href="#license-expiration">3.3.5. License Key Expiration</a></li>
-<li><a href="#license-ops">3.3.6. Updating License Key From An External Secret</a></li>
 </ul>
 </li>
 <li><a href="#private-container-registry">3.4. Using Private Container Registry</a></li>
-<li><a href="#multiple-namespaces">3.5. Multiple Namespaces Mode</a></li>
+<li><a href="#multiple-namespaces">3.5. Using Multiple Namespaces</a></li>
 <li><a href="#log-files">3.6. Log Files</a></li>
 <li><a href="#cli-flags">3.7. CLI Flags</a>
 <ul class="sectlevel3">
@@ -630,7 +629,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <p>This reference for version: <em>latest</em></p>
 </div>
 <div class="paragraph">
-<p>Boot is a solution to launch lightweight test and development environments in <a href="https://kubernetes.io/">Kubernetes</a> or <a href="https://openshift.com/">Openshift</a>.</p>
+<p>Boot is a solution to launch lightweight test and development environments in <a href="https://kubernetes.io/">Kubernetes</a>.</p>
 </div>
 </div>
 </div>
@@ -916,7 +915,7 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">reloader</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Makes sure that SSH connections to virtual machines are gracefully interrupted after expected period of time when you update Boot components</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">During Boot updates waits for configured period of time for SSH connections to virtual machines to close or explicitly closes them after that time</p></td>
 </tr>
 </tbody>
 </table>
@@ -952,20 +951,8 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Purpose</strong></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> information about <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">namespaces</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Needed to control how many virtual machines are running in every user namespace</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to analyze pods in Boot namespace</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">deployments</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/">replica sets</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used in license functionality</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store Boot configuration. Boot licenses (<code>licenses.boot.aerokube.com</code>) are cluster-wide, so a <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole">ClusterRole</a> is needed for this resource.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> and <strong>patch</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store Boot configuration and are cluster-wide, so a <a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole">ClusterRole</a> is needed for these resources.</p></td>
 </tr>
 </tbody>
 </table>
@@ -985,15 +972,11 @@ root@my-vm:~# # You now have a root access to created virtual machine</code></pr
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">pods</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to manipulate pods with browsers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to manipulate pods with virtual machines</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong>, <strong>list</strong>, <strong>create</strong>, <strong>delete</strong>, <strong>update</strong> and <strong>patch</strong> <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">config maps</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used to pass users and groups to browser pods</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">To <strong>get</strong>, <strong>watch</strong> and <strong>list</strong> Boot <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resources</a> in <code>boot.aerokube.com</code> API group</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">These custom resources store virtual machines related information.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used to pass users and groups to virtual machines pods</p></td>
 </tr>
 </tbody>
 </table>
@@ -1255,6 +1238,16 @@ Boot is using exactly the same computing resources configuration YAML format as 
     <span class="key">requests</span>:
       <span class="key">cpu</span>: <span class="string"><span class="content">1000m</span></span>
       <span class="key">memory</span>: <span class="string"><span class="content">512Mi</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same settings can be provided when creating virtual machine with kubectl plugin:</p>
+</div>
+<div class="listingblock">
+<div class="title">Providing explicit computing resource to a new virtual machine with a plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -cpu 1.0 -mem 512Mi -auth-keys authorized_keys -n boot
+$ kubectl vm create -os ubuntu -cpu '1.0/0.5' -mem '512Mi/256Mi' -auth-keys authorized_keys -n boot # Different requests and limits</code></pre>
 </div>
 </div>
 </div>
@@ -2350,7 +2343,7 @@ boot:
 </table>
 </div>
 <div class="paragraph">
-<p>A typical license key is a text file with <strong>*.key</strong> extension that looks like this:</p>
+<p>A typical license key is a text file with <strong>.key</strong> extension that looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2541,9 +2534,9 @@ spec:
 <div class="title">Two license keys are applied</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
-license-key-ns1   Acme Inc.  10     0%      20d       Ok       ns1         2m42s
-license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s</code></pre>
+NAME  LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+ns1   Acme Inc.  10     0%      20d       Ok       ns1         2m42s
+ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s</code></pre>
 </div>
 </div>
 </li>
@@ -2574,9 +2567,9 @@ license-key-ns2   Acme Inc.  20     0%      30d       Ok       ns2         2m42s
 <div class="title">Listing license keys to understand when they expire</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
-license-key-ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
-license-key-ns2   Acme Inc.  20     0%      today     Ok       ns2         2m42s</code></pre>
+NAME  LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
+ns2   Acme Inc.  20     0%      today     Ok       ns2         2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2586,9 +2579,9 @@ license-key-ns2   Acme Inc.  20     0%      today     Ok       ns2         2m42s
 <div class="title">When one license key has expired</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ kubectl get licenses
-NAME              LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
-license-key-ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
-license-key-ns2   Acme Inc.  20     0%      Already   Expired  ns2         2m42s</code></pre>
+NAME  LICENSEE   CPUS   USAGE   EXPIRES   STATUS   NAMESPACE   AGE
+ns1   Acme Inc.  10     0%      32d       Ok       ns1         2m42s
+ns2   Acme Inc.  20     0%      Already   Expired  ns2         2m42s</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2607,49 +2600,6 @@ You can also use Kubernetes API directly instead of <code>kubectl</code> to list
 </table>
 </div>
 </div>
-<div class="sect3">
-<h4 id="license-ops"><a class="anchor" href="#license-ops"></a>3.3.6. Updating License Key From An External Secret</h4>
-<div class="paragraph">
-<p>In some cases you still may want to store license key in a <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes secret</a> and allow Boot to automatically read license key from this secret. To achieve this we provide a dedicated component called <code>license-ops</code>. This component is a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes job</a> that reads license key contents from configured secret and automatically updates custom Kubernetes resource being used by Boot. To enabled <code>license-ops</code> you need to install one more Helm chart:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Having Boot <a href="#install">installed</a>, create a regular Kubernetes secret in Boot namespace with license key contents:</p>
-<div class="listingblock">
-<div class="title">Example secret with license key</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">apiVersion</span>: <span class="string"><span class="content">v1</span></span>
-<span class="key">kind</span>: <span class="string"><span class="content">Secret</span></span>
-<span class="key">metadata</span>:
-  <span class="key">name</span>: <span class="string"><span class="content">licensekey</span></span>
-  <span class="key">namespace</span>: <span class="string"><span class="content">boot</span></span>
-<span class="key">stringData</span>:
-  <span class="key">license.key</span>: <span class="string"><span class="content">MG1RSVdpc2Z6....</span></span> <span class="comment"># Insert license key contents here</span></code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Now install one more Helm chart (source code can be found <a href="https://github.com/aerokube/charts/tree/master/license-ops">here</a>):</p>
-<div class="listingblock">
-<div class="title">Installing license-ops Helm chart</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ helm upgrade --install -n boot license-ops aerokube/license-ops</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To change secret name, job schedule and other parameters - use Helm values:</p>
-</div>
-<div class="listingblock">
-<div class="title">Updating license-ops parameters</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ helm upgrade --install --set secretName=mysecret --set schedule=&quot;0 * * * *&quot; -n boot license-ops aerokube/license-ops</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="private-container-registry"><a class="anchor" href="#private-container-registry"></a>3.4. Using Private Container Registry</h3>
@@ -2666,16 +2616,11 @@ You can also use Kubernetes API directly instead of <code>kubectl</code> to list
 $ kubectl patch serviceaccount boot -p '{"imagePullSecrets": [{"name": "my-registry.example.com"}]}' -n boot # Use correct service account name here</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>In case of Openshift the following commands will work:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>$ oc create secret docker-registry my-registry.example.com --docker-server=my-registry.example.com --docker-username=some-user --docker-password=registry-password --docker-email=some-user@example.com -n boot
-$ oc secrets link boot my-registry.example.com --for=pull -n boot</pre>
-</div>
-</div>
 </li>
+</ol>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Copy all desired virtual machine images to your registry:</p>
 <div class="literalblock">
@@ -2739,7 +2684,7 @@ boot:
 </div>
 </div>
 <div class="sect2">
-<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.5. Multiple Namespaces Mode</h3>
+<h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.5. Using Multiple Namespaces</h3>
 
 </div>
 <div class="sect2">
@@ -3350,7 +3295,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-16 14:52:26 UTC
+Last updated 2023-09-17 16:19:33 UTC
 </div>
 </div>
 </body>
