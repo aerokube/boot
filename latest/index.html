@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-18</span>
+<span id="revdate">2023-09-20</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1094,24 +1094,23 @@ $ kubectl krew install aerokube/vm</code></pre>
 <div class="listingblock">
 <div class="title">Installing Boot plugin manually on Mac</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-vm_darwin_amd64.zip # x86 version
-$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-vm_darwin_arm64.zip # ARM version
-$ unzip -d /usr/local/bin kubectl-vm.zip</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o /usr/local/bin/kubectl-vm https://github.com/aerokube/boot/releases/latest/download/kubectl-vm_darwin_amd64 # x86 version
+$ curl -o /usr/local/bin/kubectl-vm https://github.com/aerokube/boot/releases/latest/download/kubectl-vm_darwin_arm64 # ARM version
+$ chmod +x /usr/local/bin/kubectl-vm</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Installing Boot plugin manually on Linux</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-linux_amd64.zip
-$ unzip -d /usr/local/bin kubectl-vm.zip</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ curl -o /usr/local/bin/kubectl-vm https://github.com/aerokube/boot/releases/latest/download/kubectl-vm_linux_amd64
+$ chmod +x /usr/local/bin/kubectl-vm</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Installing Boot plugin manually on Windows</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">&gt; curl -o kubectl-vm.zip https://download.aerokube.com/boot/kubectl-vm/latest-release/kubectl-windows_amd64.zip
-&gt; mkdir %USERPROFILE%\bin
-&gt; Expand-Archive -Force kubectl-vm.zip %USERPROFILE%\bin # Add %USERPROFILE%\bin to PATH</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">&gt; mkdir %USERPROFILE%\bin # Add %USERPROFILE%\bin to PATH
+&gt; curl -o %USERPROFILE%\bin\kubectl-vm.exe https://github.com/aerokube/boot/releases/latest/download/kubectl-vm_windows_amd64.exe</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3253,7 +3252,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-18 11:30:04 UTC
+Last updated 2023-09-20 16:57:05 UTC
 </div>
 </div>
 </body>
