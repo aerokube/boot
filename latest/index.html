@@ -532,7 +532,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <div class="details">
 <span id="author" class="author">Aerokube Software OÜ</span><br>
 <span id="revnumber">version latest,</span>
-<span id="revdate">2023-09-20</span>
+<span id="revdate">2023-09-21</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2678,7 +2678,136 @@ boot:
 </div>
 <div class="sect2">
 <h3 id="multiple-namespaces"><a class="anchor" href="#multiple-namespaces"></a>3.5. Using Multiple Namespaces</h3>
+<div class="paragraph">
+<p>This section shows how to configure Boot to launch virtual machines in <a href="#boot-multiple-namespaces-support">multiple namespaces</a>. To do this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create one or more namespaces where virtual machines will be running:</p>
+<div class="listingblock">
+<div class="title">Creating team namespaces for virtual machines</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl create namespace team-alpha
+$ kubectl create namespace team-beta</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can optionally limit computing resources available to every namespace by using Kubernetes <a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">resource quotas</a>.</p>
+</div>
+</li>
+<li>
+<p>Create a role for users in every namespace:</p>
+<div class="listingblock">
+<div class="title">Creating a namespace role</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat team-alpha-roles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: team-alpha-roles
+  namespace: team-alpha # Use correct namespace name here
+rules:
+- apiGroups:
+  - &quot;&quot;
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - boot.aerokube.com
+  resources:
+  - operatingsystems
+  - operatingsystems/status
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - boot.aerokube.com
+  resources:
+  - virtualmachines
+  - virtualmachines/status
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - patch
+  - delete
 
+$ kubectl apply -f team-alpha-roles.yaml # Create role</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Grant the role from previous step to every user that should be able to create virtual machines:</p>
+<div class="listingblock">
+<div class="title">Granting roles to users</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl create rolebinding my-user-roles --role=team-alpha-roles --user=my-user -n team-alpha # Add role to user (use correct login here)</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add namespaces to <code>values.yaml</code> file of Boot Helm chart:</p>
+<div class="listingblock">
+<div class="title">Adding namespaces to Boot</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat values.yaml
+boot:
+  namespaces:
+    - team-alpha
+    - team-beta</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Reapply Helm chart:</p>
+<div class="listingblock">
+<div class="title">Applying namespace settings to Boot</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ helm upgrade --install -f values.yaml -n boot boot aerokube/boot</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now users should be able to <a href="#virtual-machines-create">create virtual machines</a> in their namespaces:</p>
+<div class="listingblock">
+<div class="title">Creating a virtual machine from YAML definition</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ cat vm.yaml
+apiVersion: boot.aerokube.com/v1
+kind: VirtualMachine
+metadata:
+  name: my-vm
+  namespace: team-alpha # Note namespace name here
+spec:
+  os: ubuntu
+  authorizedKeys:
+    - ssh-rsa AAAAB3N... some-key
+
+$ kubectl create -f ~/vm.yaml
+virtualmachine.boot.aerokube.com/my-vm created</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Creating a virtual machine with plugin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">$ echo &quot;ssh-rsa AAAAB3N... some-key&quot; &gt;&gt; authorized_keys
+$ kubectl vm create -os ubuntu -auth-keys authorized_keys -n team-beta # Like in any kubectl command, -n flag sets namespace name</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 <div class="sect2">
 <h3 id="log-files"><a class="anchor" href="#log-files"></a>3.6. Log Files</h3>
@@ -3252,7 +3381,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-20 16:57:05 UTC
+Last updated 2023-09-21 11:17:27 UTC
 </div>
 </div>
 </body>
