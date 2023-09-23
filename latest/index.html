@@ -1127,8 +1127,8 @@ $ chmod +x /usr/local/bin/kubectl-vm</code></pre>
 <div class="listingblock">
 <div class="title">Creating a virtual machine with plugin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -n boot # Using latest operating system version
-$ kubectl vm create -os ubuntu:22.04 -n boot # Using exact operating system version</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create my-vm -os ubuntu -n boot # Using latest operating system version
+$ kubectl vm create my-vm -os ubuntu:22.04 -n boot # Using exact operating system version</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1138,7 +1138,7 @@ $ kubectl vm create -os ubuntu:22.04 -n boot # Using exact operating system vers
 <div class="title">Providing explicit authorized keys file to plugin</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="bash">$ echo &quot;ssh-rsa AAAAB3N... some-key&quot; &gt;&gt; authorized_keys # Create a list of SSH authorized keys
-$ kubectl vm create -os ubuntu -auth-keys authorized_keys -n boot # Using latest operating system version</code></pre>
+$ kubectl vm create my-vm -os ubuntu -auth-keys authorized_keys -n boot # Using latest operating system version</code></pre>
 </div>
 </div>
 </div>
@@ -1248,8 +1248,8 @@ Boot is using exactly the same computing resources configuration YAML format as 
 <div class="listingblock">
 <div class="title">Providing explicit computing resource to a new virtual machine with a plugin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -cpu 1.0 -mem 512Mi -n boot
-$ kubectl vm create -os ubuntu -cpu '1.0/0.5' -mem '512Mi/256Mi' -n boot # Different requests and limits</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create my-vm -os ubuntu -cpu 1.0 -mem 512Mi -n boot
+$ kubectl vm create my-vm -os ubuntu -cpu '1.0/0.5' -mem '512Mi/256Mi' -n boot # Different requests and limits</code></pre>
 </div>
 </div>
 </div>
@@ -1486,7 +1486,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCiL+Xa7eyclNsdiBw5JKrZYeZTD1bLXSV1mBcMKBHs
 <div class="listingblock">
 <div class="title">Adding authorized keys to new virtual machine with kubectl plugin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -auth-keys /path/to/authorized_keys.file -n boot</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create my-vm -os ubuntu -auth-keys /path/to/authorized_keys.file -n boot</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1671,7 +1671,7 @@ ssh-rsa-cert-v01@openssh.com AAAAHHNzaC1yc2EtY2VydC12MDFAb3BlbnNzaC5jb20AAAAgUmU
 <div class="listingblock">
 <div class="title">Adding trusted certification authorities to new virtual machine with kubectl plugin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -user-ca-keys /path/to/truster_user_ca.file -n boot</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create my-vm -os ubuntu -user-ca-keys /path/to/truster_user_ca.file -n boot</code></pre>
 </div>
 </div>
 </li>
@@ -2813,7 +2813,7 @@ virtualmachine.boot.aerokube.com/my-vm created</code></pre>
 <div class="listingblock">
 <div class="title">Creating a virtual machine with plugin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create -os ubuntu -n team-beta # Like in any kubectl command, -n flag sets namespace name</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">$ kubectl vm create my-vm -os ubuntu -n team-beta # Like in any kubectl command, -n flag sets namespace name</code></pre>
 </div>
 </div>
 </li>
@@ -3392,7 +3392,7 @@ $ kubectl logs -f -lapp=boot -c reloader -n boot</pre>
 <div id="footer">
 <div id="footer-text">
 Version latest<br>
-Last updated 2023-09-23 07:14:09 UTC
+Last updated 2023-09-23 16:22:07 UTC
 </div>
 </div>
 </body>
