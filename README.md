@@ -1,7 +1,7 @@
 # Boot
 [![Docker Pulls](https://img.shields.io/docker/pulls/aerokube/boot.svg)](https://hub.docker.com/r/aerokube/boot)
 
-Boot is a commercial closed-source solution to launch lightweight test and development environments. Boot relies on [Kubernetes](https://kubernetes.io/) or [Openshift](https://www.redhat.com/en/technologies/cloud-computing/openshift).
+Boot is a commercial closed-source solution to launch lightweight test and development virtual machines. Boot relies on [Kubernetes](https://kubernetes.io/) or [Openshift](https://www.redhat.com/en/technologies/cloud-computing/openshift).
 
 ## Pricing Model
 
@@ -45,8 +45,8 @@ See our [documentation](https://aerokube.com/boot/latest/#install) for more inst
 ### Efficient and Lightning Fast
 
 * Boot is implemented using lightning fast [Golang](https://golang.org/).
-* One Boot replica consumes **0.5 CPU** and **512 Mb RAM** maximum.
-* One Boor replica is able to work with **thousands** of environments.
+* One Boot replica consumes **1 CPU** and **512 Mb RAM** maximum.
+* One Boor replica is able to work with **thousands** of virtual machines.
 
 ## Complete Guide
 
